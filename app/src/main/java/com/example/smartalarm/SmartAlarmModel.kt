@@ -2,18 +2,18 @@ package com.example.smartalarm
 
 import kotlinx.coroutines.flow.MutableStateFlow
 enum class SmartAlarmStartType{
-    before,
-    after,
-    at
+    Before,
+    After,
+    At
 }
 enum class SmartAlarmFilterType{
-    calanderName,
-    eventTitle,
-    discription,
-    startTime,
-    endTime,
-    duration,
-    color
+    CalendarName,
+    EventTitle,
+    Description,
+    StartTime,
+    EndTime,
+    Duration,
+    Color
 }
 
 class SmartAlarmFilter(type : SmartAlarmFilterType){
@@ -25,15 +25,15 @@ class SmartAlarmFilter(type : SmartAlarmFilterType){
 class SmartAlarmAlarm(i: Int, s: String) {
     val id: Int = i
     var name: String = s
-    var startType: SmartAlarmStartType = SmartAlarmStartType.before
+    var startType: SmartAlarmStartType = SmartAlarmStartType.Before
     var filters : MutableList<SmartAlarmFilter> = mutableListOf(
-        SmartAlarmFilter(SmartAlarmFilterType.calanderName),
-        SmartAlarmFilter(SmartAlarmFilterType.eventTitle),
-        SmartAlarmFilter(SmartAlarmFilterType.discription),
-        SmartAlarmFilter(SmartAlarmFilterType.startTime),
-        SmartAlarmFilter(SmartAlarmFilterType.endTime),
-        SmartAlarmFilter(SmartAlarmFilterType.duration),
-        SmartAlarmFilter(SmartAlarmFilterType.color)
+        SmartAlarmFilter(SmartAlarmFilterType.CalendarName),
+        SmartAlarmFilter(SmartAlarmFilterType.EventTitle),
+        SmartAlarmFilter(SmartAlarmFilterType.Description),
+        SmartAlarmFilter(SmartAlarmFilterType.StartTime),
+        SmartAlarmFilter(SmartAlarmFilterType.EndTime),
+        SmartAlarmFilter(SmartAlarmFilterType.Duration),
+        SmartAlarmFilter(SmartAlarmFilterType.Color)
     )
 
 }
