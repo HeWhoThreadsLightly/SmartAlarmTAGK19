@@ -1,4 +1,5 @@
 package com.example.smartalarm
+import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.draggable
@@ -88,11 +89,12 @@ fun renderAlarm(){
     var alarm = SmartAlarmAlarm(5, "Example")
     var textName by remember { mutableStateOf(TextFieldValue(alarm.name)) }
     var textStart by remember { mutableStateOf(TextFieldValue("90")) }
-
-    val data = remember { mutableStateOf(List(100) { "$it" }) }
+    val data = remember{ mutableStateOf(alarm.events) }
+    val dataOld = remember { mutableStateOf(List(10) { "$it" }) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         data.value = data.value.toMutableList().apply {
-            add(to.index, removeAt(from.index))
+            Log.d("TAG", "renderAlarm: moved from ${this[from.index -1]} at ${from.index -1 } to ${this[to.index -1]} at ${to.index -1}")
+            add(to.index - 1, removeAt(from.index - 1))//Note library indexes by 1
         }
     })
 
@@ -137,7 +139,7 @@ fun renderAlarm(){
                             .shadow(elevation.value)
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
-                        renderEvent(event = SmartAlarmEvent(item))
+                        renderEvent(item)
                     }
                 }
             }
