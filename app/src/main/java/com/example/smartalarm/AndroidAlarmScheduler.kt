@@ -34,6 +34,14 @@ class AndroidAlarmScheduler(
     }
 
     override fun cancel(item: AlarmItem) {
-        TODO("Not yet implemented")
+        alarmManager.cancel(
+            PendingIntent.getBroadcast(
+                context,
+                item.hashCode(),
+                Intent(context, AlarmReceiver::class.java),
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+
+            )
+        )
     }
 }
