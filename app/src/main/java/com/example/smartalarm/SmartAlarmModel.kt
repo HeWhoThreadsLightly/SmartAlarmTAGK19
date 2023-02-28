@@ -2,14 +2,14 @@ package com.example.smartalarm
 
 import kotlinx.coroutines.flow.MutableStateFlow
 enum class SmartAlarmStartType{
-    before,
-    after,
-    at
+    Before,
+    After,
+    At
 }
 enum class SmartAlarmFilterType{
     CalendarName,
     EventTitle,
-    Discription,
+    Description,
     StartTime,
     EndTime,
     Duration,
@@ -29,11 +29,11 @@ class SmartAlarmEvent(tmp : String){
 class SmartAlarmAlarm(i: Int, s: String) {
     val id: Int = i
     var name: String = s
-    var startType: SmartAlarmStartType = SmartAlarmStartType.before
+    var startType: SmartAlarmStartType = SmartAlarmStartType.Before
     var filters : MutableList<SmartAlarmFilter> = mutableListOf(
         SmartAlarmFilter(SmartAlarmFilterType.CalendarName),
         SmartAlarmFilter(SmartAlarmFilterType.EventTitle),
-        SmartAlarmFilter(SmartAlarmFilterType.Discription),
+        SmartAlarmFilter(SmartAlarmFilterType.Description),
         SmartAlarmFilter(SmartAlarmFilterType.StartTime),
         SmartAlarmFilter(SmartAlarmFilterType.EndTime),
         SmartAlarmFilter(SmartAlarmFilterType.Duration),
