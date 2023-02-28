@@ -7,13 +7,13 @@ enum class SmartAlarmStartType{
     at
 }
 enum class SmartAlarmFilterType{
-    calanderName,
-    eventTitle,
-    discription,
-    startTime,
-    endTime,
-    duration,
-    color
+    CalendarName,
+    EventTitle,
+    Discription,
+    StartTime,
+    EndTime,
+    Duration,
+    Color
 }
 
 class SmartAlarmFilter(type : SmartAlarmFilterType){
@@ -22,18 +22,27 @@ class SmartAlarmFilter(type : SmartAlarmFilterType){
     var filter : String = ".*"
 }
 
+class SmartAlarmEvent(tmp : String){
+    var placeholder : String = tmp
+}
+
 class SmartAlarmAlarm(i: Int, s: String) {
     val id: Int = i
     var name: String = s
     var startType: SmartAlarmStartType = SmartAlarmStartType.before
     var filters : MutableList<SmartAlarmFilter> = mutableListOf(
-        SmartAlarmFilter(SmartAlarmFilterType.calanderName),
-        SmartAlarmFilter(SmartAlarmFilterType.eventTitle),
-        SmartAlarmFilter(SmartAlarmFilterType.discription),
-        SmartAlarmFilter(SmartAlarmFilterType.startTime),
-        SmartAlarmFilter(SmartAlarmFilterType.endTime),
-        SmartAlarmFilter(SmartAlarmFilterType.duration),
-        SmartAlarmFilter(SmartAlarmFilterType.color)
+        SmartAlarmFilter(SmartAlarmFilterType.CalendarName),
+        SmartAlarmFilter(SmartAlarmFilterType.EventTitle),
+        SmartAlarmFilter(SmartAlarmFilterType.Discription),
+        SmartAlarmFilter(SmartAlarmFilterType.StartTime),
+        SmartAlarmFilter(SmartAlarmFilterType.EndTime),
+        SmartAlarmFilter(SmartAlarmFilterType.Duration),
+        SmartAlarmFilter(SmartAlarmFilterType.Color)
+    )
+    var events : MutableList<SmartAlarmEvent> = mutableListOf(
+        SmartAlarmEvent("Set volume to 10%"),
+        SmartAlarmEvent("Start playlist mk12321%"),
+        SmartAlarmEvent("Raise volume to 80% over 15 min"),
     )
 
 }

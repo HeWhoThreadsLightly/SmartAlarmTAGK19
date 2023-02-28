@@ -3,10 +3,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.TextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -26,6 +23,22 @@ fun renderFilter(filter: SmartAlarmFilter){
         textRegex = it
         filter.filter = it.text
     })
+}
+
+@Composable
+fun renderEvent(event : SmartAlarmEvent){
+    Row(
+        modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+    ){
+        Text(event.placeholder)
+        Button(
+            modifier = Modifier,
+            onClick = {
+
+            }) {
+            Text("Discard")
+        }
+    }
 }
 
 @Composable
@@ -58,9 +71,9 @@ fun renderAlarm(){
             }
 
             Text(text = "Alarm sequence")
-            Text(text = "Set volume to 10%")
-            Text(text = "Start playlist mk12321%")
-            Text(text = "Raise volume to 80% over 15 min")
+            alarm.events.forEach{
+                renderEvent(event = it)
+            }
         }
     }
 
