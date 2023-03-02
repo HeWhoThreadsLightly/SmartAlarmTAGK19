@@ -69,7 +69,7 @@ fun VerticalReorderList() {
 }
 
 @Composable
-fun renderEvent(event : SmartAlarmEvent){
+fun renderAction(event : SmartAlarmAction){
     Row(
         modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
     ){
@@ -139,11 +139,10 @@ fun renderAlarm(){
                             .shadow(elevation.value)
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
-                        renderEvent(item)
+                        renderAction(item)
                     }
                 }
             }
         }
     }
-
 }
