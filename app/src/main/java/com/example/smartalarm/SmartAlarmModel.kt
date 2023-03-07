@@ -95,9 +95,10 @@ class SmartAlarmAlarm(i: Int, s: String) {
 
 
 class SmartAlarmModel {
-    var alarms = MutableStateFlow(
-        listOf<SmartAlarmAlarm>(
-            SmartAlarmAlarm(5, "s")
+    var alarms : MutableList<SmartAlarmAlarm> =
+        mutableListOf<SmartAlarmAlarm>(
+            SmartAlarmAlarm(5, "Example"),
+            SmartAlarmAlarm(6, "Example2")
         )
-    )
+
 }
