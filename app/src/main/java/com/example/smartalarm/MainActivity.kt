@@ -20,6 +20,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             SmartAlarmTheme {
                 // A surface container using the 'background' color from the theme
+<<<<<<< Updated upstream
+=======
+                renderAlarm(context = this)
+>>>>>>> Stashed changes
 
                 var secondsText by remember {
                     mutableStateOf("")
