@@ -1,8 +1,10 @@
 package com.example.smartalarm
 
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,6 +15,7 @@ import com.example.smartalarm.ui.theme.SmartAlarmTheme
 import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val scheduler = AndroidAlarmScheduler(this)
@@ -20,10 +23,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             SmartAlarmTheme {
                 // A surface container using the 'background' color from the theme
-<<<<<<< Updated upstream
-=======
                 renderAlarm(context = this)
->>>>>>> Stashed changes
 
                 var secondsText by remember {
                     mutableStateOf("")
