@@ -74,13 +74,13 @@ class ActionDelay(tmp : String) : SmartAlarmAction(tmp){
 }
 
 class SetVolume(private val context: Context, private val volume: Int) : SmartAlarmAction("Set volume to $volume%") {
-    override fun begin() {
-        setVolume(context, volume)
-    }
+        override fun begin() {
+            setVolume(context, volume)
+        }
 
-    override fun stop() {}
+        override fun stop() {}
 
-    private fun setVolume(context: Context, volume: Int) {
+        private fun setVolume(context: Context, volume: Int) {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
         val newVolume = (maxVolume * volume) / 100
