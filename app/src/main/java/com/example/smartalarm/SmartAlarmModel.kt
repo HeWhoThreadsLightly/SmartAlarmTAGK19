@@ -110,7 +110,8 @@ class ActionPlayYoutube (model: SmartAlarmModel, id : String): SmartAlarmAction(
     }
 }
 
-class ActionDelay(tmp : String) : SmartAlarmAction(tmp){
+class ActionDelay(model: SmartAlarmModel, placehloder : String) : SmartAlarmAction(model){
+    var placeholder : String = placehloder
     override fun begin(){
         Log.d("TAG", "start of $placeholder delay" )
     }
@@ -119,9 +120,9 @@ class ActionDelay(tmp : String) : SmartAlarmAction(tmp){
     }
 }
 
-class SetVolume(private val context: Context, private val volume: Int) : SmartAlarmAction("Set volume to $volume%") {
+class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAction(model) {
         override fun begin() {
-            setVolume(context, volume)
+            setVolume(model.context, volume)
         }
 
         override fun stop() {}
@@ -132,35 +133,6 @@ class SetVolume(private val context: Context, private val volume: Int) : SmartAl
         val newVolume = (maxVolume * volume) / 100
         audioManager.setStreamVolume(AudioManager.STREAM_ALARM, newVolume, 0)
     }
-}
-
-class SmartAlarmAlarm(i: Int, s: String, context: Context) {
-    val id: Int = i
-    var name: String = s
-    var startType: SmartAlarmStartType = SmartAlarmStartType.Before
-    var filters: MutableList<SmartAlarmFilter> = mutableListOf(
-        SmartAlarmFilter(SmartAlarmFilterType.CalendarName),
-        SmartAlarmFilter(SmartAlarmFilterType.EventTitle),
-        SmartAlarmFilter(SmartAlarmFilterType.Description),
-        SmartAlarmFilter(SmartAlarmFilterType.StartTime),
-        SmartAlarmFilter(SmartAlarmFilterType.EndTime),
-        SmartAlarmFilter(SmartAlarmFilterType.Duration),
-        SmartAlarmFilter(SmartAlarmFilterType.Color)
-    )
-    var events: MutableList<SmartAlarmAction> = mutableListOf(
-        SetVolume(context, 10),
-        ActionDelay("10 seconds"),
-        ActionPlayYoutube("ZqJfqIwpXZ8"),
-        ActionDelay("10 seconds")
-    )
-}
-
-class SmartAlarmModel(private val context: Context) {
-    var alarms = MutableStateFlow(
-        listOf<SmartAlarmAlarm>(
-            SmartAlarmAlarm(5, "s", context)
-        )
-    )
 }
 
 class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
@@ -174,13 +146,11 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     var matchingEvents : MutableList<SmartAlarmParsedEvent> = mutableListOf()
     var startType: SmartAlarmStartType = SmartAlarmStartType.Before
         set(value){
-            startType = value
             matchingEventsInvalid = true
             updateCache()
         }
     var startMinutes : Long = 5
         set(value){
-            startMinutes = value
             matchingEventsInvalid = true
             updateCache()
         }
@@ -195,6 +165,7 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     )
     var actions : MutableList<SmartAlarmAction> = mutableListOf(
         SmartAlarmAction(model),
+        SetVolume(model, 10),
         ActionDelay(model,"10 seconds"),
         ActionPlayYoutube(model,"ZqJfqIwpXZ8"),
         ActionDelay(model,"10 seconds")

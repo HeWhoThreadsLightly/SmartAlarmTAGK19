@@ -251,6 +251,3 @@ fun AppScreen(model : SmartAlarmModel) {
         }
     }
 }
-=======
-s
->>>>>>> origin/Rashads-Branch
