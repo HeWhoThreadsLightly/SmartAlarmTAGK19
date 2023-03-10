@@ -5,7 +5,9 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
-import kotlinx.coroutines.flow.MutableStateFlow
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 enum class SmartAlarmStartType{
@@ -15,22 +17,58 @@ enum class SmartAlarmStartType{
 }
 enum class SmartAlarmFilterType{
     CalendarName,
-    EventTitle,
+    Summary,
     Description,
     StartTime,
     EndTime,
     Duration,
-    Color
+    Color,
+    Status
 }
 
-class SmartAlarmFilter(type : SmartAlarmFilterType){
+class SmartAlarmFilter(alarm: SmartAlarmAlarm, type : SmartAlarmFilterType){
+    fun filter(event: SmartAlarmCalendarEvent): Boolean {
+        if(!active){
+            return true
+        }
+        when(filterType){
+            SmartAlarmFilterType.CalendarName -> TODO()
+            SmartAlarmFilterType.Summary -> {
+                return event.summary.matches(filter.toRegex())
+            }
+            SmartAlarmFilterType.Description -> {
+                return event.description.matches(filter.toRegex())
+            }
+            SmartAlarmFilterType.StartTime -> {
+                return event.startTimeString().matches(filter.toRegex())
+            }
+            SmartAlarmFilterType.EndTime ->{
+                return event.endTimeString().matches(filter.toRegex())
+            }
+            SmartAlarmFilterType.Duration -> {
+               return event.duration().matches(filter.toRegex())
+            }
+            SmartAlarmFilterType.Color -> TODO()
+            SmartAlarmFilterType.Status -> {
+                return event.status.matches(filter.toRegex())
+            }
+        }
+    }
+    val alarm: SmartAlarmAlarm = alarm
     var filterType : SmartAlarmFilterType = type
     var active : Boolean = true
+        set(value){
+            active = value
+            alarm.filtersUpdated = true
+        }
     var filter : String = ".*"
+        set(value){
+            filter = value
+            alarm.filtersUpdated = true
+        }
 }
 
-open class SmartAlarmAction(tmp : String){
-    var placeholder : String = tmp
+open class SmartAlarmAction(var model: SmartAlarmModel){
     open fun begin(){
         Log.d("TAG", "Base start smart alarm action called")
     }
@@ -40,29 +78,37 @@ open class SmartAlarmAction(tmp : String){
     }
 }
 
-class ActionPlayYoutube (tmp : String): SmartAlarmAction(tmp){
-    fun watchYoutubeVideo(id: String) {
+class ActionPlayYoutube (model: SmartAlarmModel, id : String): SmartAlarmAction(model){
+    var id = id
+    override fun begin(){
+        Log.d("TAG", "trying to start youtube video $id" )
+
         val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
-        val webIntent = Intent(
+        val webIntent : Intent = Uri.parse("http://www.youtube.com/watch?v=$id").let {
+            Intent(Intent.ACTION_VIEW, it)
+        }
+
+        var i =    Intent(
             Intent.ACTION_VIEW,
             Uri.parse("http://www.youtube.com/watch?v=$id")
         )
         try {
-            //startActivity(appIntent)//TODO make it call
+            startActivity(model.context, appIntent, null)
         } catch (ex: ActivityNotFoundException) {
-            //startActivity(webIntent)//TODO make it call
+            try {
+                startActivity(model.context, webIntent, null)
+            }catch (ex: ActivityNotFoundException){
+                Log.d("TAG", "Failed to start youtube video" )//TODO make UI popup
+            }
         }
-    }
-    override fun begin(){
-        Log.d("TAG", "trying to start youtube video $placeholder" )
-        watchYoutubeVideo(placeholder)
     }
     override fun stop(){
 
     }
 }
 
-class ActionDelay(tmp : String) : SmartAlarmAction(tmp){
+class ActionDelay(model: SmartAlarmModel, tmp : String) : SmartAlarmAction(model){
+    var placeholder = tmp
     override fun begin(){
         Log.d("TAG", "start of $placeholder delay" )
     }
@@ -71,34 +117,84 @@ class ActionDelay(tmp : String) : SmartAlarmAction(tmp){
     }
 }
 
-class SmartAlarmAlarm(i: Int, s: String) {
-    val id: Int = i
-    var name: String = s
+class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
+    val model: SmartAlarmModel = model
+    val id: Int = id
+    var name: String = name
+    var filtersUpdated : Boolean = true
+    var matchingEventsInvalid : Boolean = true
+    var matchingEventsUpdated : Boolean = true
+    var basedOnCalendarVersion : Long = 0
+    var matchingEvents : MutableList<SmartAlarmParsedEvent> = mutableListOf()
     var startType: SmartAlarmStartType = SmartAlarmStartType.Before
+        set(value){
+            startType = value
+            matchingEventsInvalid = true
+            updateCache()
+        }
+    var startMinutes : Long = 5
+        set(value){
+            startMinutes = value
+            matchingEventsInvalid = true
+            updateCache()
+        }
     var filters : MutableList<SmartAlarmFilter> = mutableListOf(
-        SmartAlarmFilter(SmartAlarmFilterType.CalendarName),
-        SmartAlarmFilter(SmartAlarmFilterType.EventTitle),
-        SmartAlarmFilter(SmartAlarmFilterType.Description),
-        SmartAlarmFilter(SmartAlarmFilterType.StartTime),
-        SmartAlarmFilter(SmartAlarmFilterType.EndTime),
-        SmartAlarmFilter(SmartAlarmFilterType.Duration),
-        SmartAlarmFilter(SmartAlarmFilterType.Color)
+        SmartAlarmFilter(this, SmartAlarmFilterType.CalendarName),
+        SmartAlarmFilter(this, SmartAlarmFilterType.Summary),
+        SmartAlarmFilter(this, SmartAlarmFilterType.Description),
+        SmartAlarmFilter(this, SmartAlarmFilterType.StartTime),
+        SmartAlarmFilter(this, SmartAlarmFilterType.EndTime),
+        SmartAlarmFilter(this, SmartAlarmFilterType.Duration),
+        SmartAlarmFilter(this, SmartAlarmFilterType.Color)
     )
-    var events : MutableList<SmartAlarmAction> = mutableListOf(
-        SmartAlarmAction("Set volume to 10%"),
-        ActionDelay("10 seconds"),
-        ActionPlayYoutube("ZqJfqIwpXZ8"),
-        ActionDelay("10 seconds")
+    var actions : MutableList<SmartAlarmAction> = mutableListOf(
+        SmartAlarmAction(model),
+        ActionDelay(model,"10 seconds"),
+        ActionPlayYoutube(model,"ZqJfqIwpXZ8"),
+        ActionDelay(model,"10 seconds")
     )
-
+    private fun applyFiltersToEvent(event : SmartAlarmCalendarEvent): Boolean {
+        filters.forEach(){
+            if(!it.filter(event)){
+                return false
+            }
+        }
+        return true
+    }
+    fun applyFilters(){
+        matchingEvents = mutableListOf()
+        model.calendar.events.forEach{
+            if(applyFiltersToEvent(it)){
+                matchingEvents.add(SmartAlarmParsedEvent(this, it))
+            }
+        }
+    }
+    fun updateCache(){
+        if(basedOnCalendarVersion != model.calendar.calendarVersion || filtersUpdated){
+            matchingEventsUpdated = true
+            basedOnCalendarVersion = model.calendar.calendarVersion
+            applyFilters()
+        }
+        if(matchingEventsInvalid){
+            matchingEventsInvalid = false
+            matchingEventsUpdated = true
+            matchingEvents.forEach(){
+                it.updateStartDate(this)
+            }
+        }
+        if(matchingEventsUpdated){
+            //TODO schedule next start time
+        }
+    }
 }
 
-
-class SmartAlarmModel {
+class SmartAlarmModel(context: MainActivity) {
+    var context : MainActivity = context
+    var calendar: SmartAlarmCalendar = SmartAlarmCalendar()
     var alarms : MutableList<SmartAlarmAlarm> =
         mutableListOf<SmartAlarmAlarm>(
-            SmartAlarmAlarm(5, "Example"),
-            SmartAlarmAlarm(6, "Example2")
+            SmartAlarmAlarm(this,5, "Example"),
+            SmartAlarmAlarm(this,6, "Example2")
         )
 
 }

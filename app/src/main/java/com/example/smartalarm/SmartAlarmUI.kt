@@ -20,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import kotlin.reflect.typeOf
 
 class SmartAlarmUI {
 
@@ -74,13 +75,13 @@ fun renderAction(event : SmartAlarmAction){
     Row(
         modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
     ){
-        Text(event.placeholder)
+        Text(event.javaClass.name)
         Button(
             modifier = Modifier,
             onClick = {
-
+                event.begin()
             }) {
-            Text("Discard")
+            Text("Test")
         }
     }
 }
@@ -94,7 +95,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
     }
     var textName by remember { mutableStateOf(TextFieldValue(alarm.name)) }
     var textStart by remember { mutableStateOf(TextFieldValue("90")) }
-    val data = remember{ mutableStateOf(alarm.events) }
+    val data = remember{ mutableStateOf(alarm.actions) }
     val dataOld = remember { mutableStateOf(List(10) { "$it" }) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         data.value = data.value.toMutableList().apply {
