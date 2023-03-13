@@ -12,6 +12,9 @@ import java.util.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import android.content.Context
 import android.media.AudioManager
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
 
 enum class SmartAlarmStartType{
     Before,
@@ -110,30 +113,41 @@ class ActionPlayYoutube (model: SmartAlarmModel, id : String): SmartAlarmAction(
     }
 }
 
-class ActionDelay(model: SmartAlarmModel, placehloder : String) : SmartAlarmAction(model){
-    var placeholder : String = placehloder
-    override fun begin(){
-        Log.d("TAG", "start of $placeholder delay" )
-    }
-    override fun stop(){
+class ActionDelay(model: SmartAlarmModel, private val delaySeconds: Long) : SmartAlarmAction(model) {
 
+    override fun begin() {
+        Log.d("TAG", "start of ${delaySeconds}s delay")
+        SystemClock.sleep(delaySeconds * 1000)
+        Log.d("TAG", "${delaySeconds}s delay finished")
+    }
+
+    override fun stop() {
+        // implementation of stop method
     }
 }
 
 class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAction(model) {
-        override fun begin() {
-            setVolume(model.context, volume)
-        }
 
-        override fun stop() {}
+    override fun begin() {
+        setVolume(model.context, volume)
+    }
 
-        private fun setVolume(context: Context, volume: Int) {
+    override fun stop() {}
+
+    private fun setVolume(context: Context, volume: Int) {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
-        val newVolume = (maxVolume * volume) / 100
-        audioManager.setStreamVolume(AudioManager.STREAM_ALARM, newVolume, 0)
+
+        for (stream in AudioManager.STREAM_VOICE_CALL..AudioManager.STREAM_NOTIFICATION) {
+            val maxVolume = audioManager.getStreamMaxVolume(stream)
+            val newVolume = (maxVolume * volume) / 100
+            audioManager.setStreamVolume(stream, newVolume, 0)
+        }
     }
 }
+
+
+
+
 
 class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     val model: SmartAlarmModel = model
@@ -166,9 +180,9 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     var actions : MutableList<SmartAlarmAction> = mutableListOf(
         SmartAlarmAction(model),
         SetVolume(model, 10),
-        ActionDelay(model,"10 seconds"),
+        ActionDelay(model,10),
         ActionPlayYoutube(model,"ZqJfqIwpXZ8"),
-        ActionDelay(model,"10 seconds")
+        ActionDelay(model,10)
     )
     private fun applyFiltersToEvent(event : SmartAlarmCalendarEvent): Boolean {
         filters.forEach(){
