@@ -1,5 +1,6 @@
 package com.example.smartalarm
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -15,6 +16,9 @@ import android.media.AudioManager
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 
 enum class SmartAlarmStartType{
     Before,
@@ -154,19 +158,14 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     val id: Int = id
     var name: String = name
     var filtersUpdated : Boolean = true
-    var matchingEventsInvalid : Boolean = true
-    var matchingEventsUpdated : Boolean = true
-    var basedOnCalendarVersion : Long = 0
     var matchingEvents : MutableList<SmartAlarmParsedEvent> = mutableListOf()
     var startType: SmartAlarmStartType = SmartAlarmStartType.Before
         set(value){
-            matchingEventsInvalid = true
-            updateCache()
+            updateEventStartTimes()
         }
     var startMinutes : Long = 5
         set(value){
-            matchingEventsInvalid = true
-            updateCache()
+            updateEventStartTimes()
         }
     var filters : MutableList<SmartAlarmFilter> = mutableListOf(
         SmartAlarmFilter(this, SmartAlarmFilterType.CalendarName),
@@ -192,30 +191,28 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
         }
         return true
     }
-    fun applyFilters(){
-        matchingEvents = mutableListOf()
+    fun updateDisplayedNextAlarmTime(){
+        //TODO may need to push the alarm update to ui or event service
+    }
+    fun updateMatchingEvents(){
+        var matching = mutableListOf<SmartAlarmParsedEvent>()
         model.calendar.events.forEach{
             if(applyFiltersToEvent(it)){
-                matchingEvents.add(SmartAlarmParsedEvent(this, it))
+                matching.add(SmartAlarmParsedEvent(this, it))
             }
         }
+        matchingEvents = matching
+        updateDisplayedNextAlarmTime()
     }
-    fun updateCache(){
-        if(basedOnCalendarVersion != model.calendar.calendarVersion || filtersUpdated){
-            matchingEventsUpdated = true
-            basedOnCalendarVersion = model.calendar.calendarVersion
-            applyFilters()
+
+    fun updateEventStartTimes(){
+        matchingEvents.forEach(){
+            it.updateStartDate(this)
         }
-        if(matchingEventsInvalid){
-            matchingEventsInvalid = false
-            matchingEventsUpdated = true
-            matchingEvents.forEach(){
-                it.updateStartDate(this)
-            }
-        }
-        if(matchingEventsUpdated){
-            //TODO schedule next start time
-        }
+        updateDisplayedNextAlarmTime()
+    }
+    fun update(){
+        updateMatchingEvents()
     }
 }
 
@@ -227,5 +224,21 @@ class SmartAlarmModel(context: MainActivity) {
             SmartAlarmAlarm(this,5, "Example"),
             SmartAlarmAlarm(this,6, "Example2")
         )
+    private fun checkPermissions(callbackId: Int, vararg permissionsId: String) {
+        var permissions = true
+        for (p in permissionsId) {
+            permissions =
+                permissions && ContextCompat.checkSelfPermission(context, p) == PERMISSION_GRANTED
+        }
+        if (!permissions) ActivityCompat.requestPermissions(context, permissionsId, callbackId)
+    }
 
+    fun update(){
+        var callbackId = 42;
+        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR);
+        calendar.update()
+        alarms.forEach(){
+            it.update()
+        }
+    }
 }

@@ -206,6 +206,14 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel){
                 ) {
 
                     Text("Menu placeholder")
+                    Button(
+                        modifier = Modifier,
+                        onClick = {
+                            model.update()
+                            //TODO open alarm in new context
+                        }) {
+                        Text("Update calendar")
+                    }
 
                 }
             }

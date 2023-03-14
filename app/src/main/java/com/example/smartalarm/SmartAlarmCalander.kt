@@ -1,17 +1,15 @@
 package com.example.smartalarm
 
-import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.icu.text.SimpleDateFormat
 import android.provider.CalendarContract
-import java.text.ParseException
-import java.text.DateFormat
-import java.time.Instant
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import android.util.Log
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import java.util.*
+
 
 val ICSdateFormat: SimpleDateFormat = SimpleDateFormat("yyyyMMdd'T'HHmmss")
 val displayDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss eee 'V'ww")
@@ -70,17 +68,13 @@ class SmartAlarmParsedEvent(alarm : SmartAlarmAlarm, event: SmartAlarmCalendarEv
 }
 
 class SmartAlarmCalendar(private val context: Context) {
-    // The version number of the calendar, incremented each time it is refreshed.
-    var calendarVersion : Long = 0
 
     // The list of calendar events.
-    var events : MutableList<SmartAlarmCalendarEvent> = mutableListOf()
+    var events : List<SmartAlarmCalendarEvent> = listOf()
 
     // This method refreshes the calendar events by querying the device's calendar.
-    fun refrechCalendar() {
-        // Increment the calendar version number.
-        calendarVersion++
-
+    private fun fetchFeed():List<SmartAlarmCalendarEvent> {
+        var latestEvents = mutableListOf<SmartAlarmCalendarEvent>()
         // Get a ContentResolver object to query the calendar.
         val cr: ContentResolver = context.contentResolver
 
@@ -110,30 +104,51 @@ class SmartAlarmCalendar(private val context: Context) {
             sortOrder
         )
 
-        // Clear the list of events.
-        events.clear()
-
-        // Iterate över the cursor to create new SmartAlarmCalendarEvent objects for each event.
+        fun getStringOrNull(it : Cursor, column : String):String?{
+            var index = it.getColumnIndex(column)
+            if(index == -1){
+                return null
+            }
+            return it.getString(index)
+        }
+        fun getLongOrNull(it : Cursor, column : String):Long?{
+            var index = it.getColumnIndex(column)
+            if(index == -1){
+                return null
+            }
+            return it.getLong(index)
+        }
+        // Iterate over the cursor to create new SmartAlarmCalendarEvent objects for each event.
         cursor?.use {
+            Log.d("TAG", "Fetched calendar")
+            it.columnNames.forEach { Log.d("TAG", "Column $it") }
             while (it.moveToNext()) {
+                Log.d("TAG", "Fetched Event ${it}")
                 // Get the values for each column from the cursor.
-                val summary: String = it.getString(it.getColumnIndex(CalendarContract.Events.TITLE))
-                val description: String = it.getString(it.getColumnIndex(CalendarContract.Events.DESCRIPTION))
-                val location: String = it.getString(it.getColumnIndex(CalendarContract.Events.EVENT_LOCATION))
-                val status: String = it.getString(it.getColumnIndex(CalendarContract.Events.STATUS))
-                val startTimeMillis: Long = it.getLong(it.getColumnIndex(CalendarContract.Events.DTSTART))
-                val endTimeMillis: Long = it.getLong(it.getColumnIndex(CalendarContract.Events.DTEND))
-
+                val summary: String? = getStringOrNull(it, CalendarContract.Events.TITLE)
+                val description: String? = getStringOrNull(it, CalendarContract.Events.DESCRIPTION)
+                val location: String? = getStringOrNull(it, CalendarContract.Events.EVENT_LOCATION)
+                val status: String? = getStringOrNull(it, CalendarContract.Events.STATUS)
+                val startTimeMillis: Long? = getLongOrNull(it, CalendarContract.Events.DTSTART)
+                val endTimeMillis: Long? = getLongOrNull(it, CalendarContract.Events.DTEND)
                 // Create a new calendar event object and set its properties.
-                val event = SmartAlarmCalendarEvent(summary, description, location, status)
-                event.startTime = Date(startTimeMillis)
-                event.endTime = Date(endTimeMillis)
+                if(summary != null && description != null && location != null && status != null && startTimeMillis != null && endTimeMillis != null){
 
-                events.add(event)
+                    val event = SmartAlarmCalendarEvent(summary, description, location, status)
+                    event.startTime = Date(startTimeMillis)
+                    event.endTime = Date(endTimeMillis)
+
+                    latestEvents.add(event)
+                }else{
+                    Log.d("TAG", "Event was missing columns")
+                }
             }
         }
 
-        //TODO trigger update of cached results
+        return  latestEvents
+    }
+    fun update(){
+        events = fetchFeed()
     }
 }
 
