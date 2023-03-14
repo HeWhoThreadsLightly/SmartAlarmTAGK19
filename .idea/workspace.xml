@@ -9,7 +9,12 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ab9ef5fb-e947-430e-b73a-694abf026106" name="Changes" comment="" />
+    <list default="true" id="9d1a6482-6704-459b-8e02-b78957b8df47" name="Changes" comment="Broken implementation pf calendar get">
+      <change beforePath="$PROJECT_DIR$/.idea/modules/Smart_Alarm.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/Smart_Alarm.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/app/Smart_Alarm.app.androidTest.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/Smart_Alarm.app.androidTest.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/app/Smart_Alarm.app.main.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/Smart_Alarm.app.main.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules/app/Smart_Alarm.app.unitTest.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules/app/Smart_Alarm.app.unitTest.iml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -17,7 +22,6 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -59,5 +63,8 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/Smart_Alarm$SmartAlarmTAGK19_app__testDebugUnitTest_.ic" NAME="SmartAlarmTAGK19:app [testDebugUnitTest] Coverage Results" MODIFIED="1677842981214" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" />
   </component>
 </project>
