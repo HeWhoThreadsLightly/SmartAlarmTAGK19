@@ -1,6 +1,11 @@
 package com.example.smartalarm
 
+import android.annotation.SuppressLint
+import android.content.ContentResolver
+import android.content.Context
+import android.database.Cursor
 import android.icu.text.SimpleDateFormat
+import android.provider.CalendarContract
 import java.text.ParseException
 import java.text.DateFormat
 import java.time.Instant
@@ -64,20 +69,71 @@ class SmartAlarmParsedEvent(alarm : SmartAlarmAlarm, event: SmartAlarmCalendarEv
     }
 }
 
-class SmartAlarmCalendar {
+class SmartAlarmCalendar(private val context: Context) {
+    // The version number of the calendar, incremented each time it is refreshed.
     var calendarVersion : Long = 0
-    var events : MutableList<SmartAlarmCalendarEvent> =
-        mutableListOf<SmartAlarmCalendarEvent>(
-            SmartAlarmCalendarEvent("Test", "test ui", "Home", "CONFIRMED"),
-            SmartAlarmCalendarEvent("TODO", "add new items to ui", "Home", "CONFIRMED"),
-            SmartAlarmCalendarEvent("TODO", "add more todos to app", "School", "CONFIRMED"),
-            SmartAlarmCalendarEvent("Test", "test how regex can be used", "School", "CONFIRMED"),
-            SmartAlarmCalendarEvent("todo", "work on app", "School", "CONFIRMED")
-        )
-    fun refrechCalendar(){
+
+    // The list of calendar events.
+    var events : MutableList<SmartAlarmCalendarEvent> = mutableListOf()
+
+    // This method refreshes the calendar events by querying the device's calendar.
+    fun refrechCalendar() {
+        // Increment the calendar version number.
         calendarVersion++
-        events = mutableListOf()
-        //TODO fetch new calendar data
+
+        // Get a ContentResolver object to query the calendar.
+        val cr: ContentResolver = context.contentResolver
+
+        // Define an array of columns to retrieve for each event.
+        val projection: Array<String> = arrayOf(
+            CalendarContract.Events.TITLE,
+            CalendarContract.Events.DESCRIPTION,
+            CalendarContract.Events.EVENT_LOCATION,
+            CalendarContract.Events.STATUS,
+            CalendarContract.Events.DTSTART,
+            CalendarContract.Events.DTEND
+        )
+
+        // Define a filter to only retrieve events that start after the current time.
+        val selection = "${CalendarContract.Events.DTSTART} >= ?"
+        val selectionArgs: Array<String> = arrayOf("${System.currentTimeMillis()}")
+
+        // Sort the results by start time in ascending order.
+        val sortOrder = "${CalendarContract.Events.DTSTART} ASC"
+
+        // Query the calendar using the filter and sort order.
+        val cursor: Cursor? = cr.query(
+            CalendarContract.Events.CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            sortOrder
+        )
+
+        // Clear the list of events.
+        events.clear()
+
+        // Iterate över the cursor to create new SmartAlarmCalendarEvent objects for each event.
+        cursor?.use {
+            while (it.moveToNext()) {
+                // Get the values for each column from the cursor.
+                val summary: String = it.getString(it.getColumnIndex(CalendarContract.Events.TITLE))
+                val description: String = it.getString(it.getColumnIndex(CalendarContract.Events.DESCRIPTION))
+                val location: String = it.getString(it.getColumnIndex(CalendarContract.Events.EVENT_LOCATION))
+                val status: String = it.getString(it.getColumnIndex(CalendarContract.Events.STATUS))
+                val startTimeMillis: Long = it.getLong(it.getColumnIndex(CalendarContract.Events.DTSTART))
+                val endTimeMillis: Long = it.getLong(it.getColumnIndex(CalendarContract.Events.DTEND))
+
+                // Create a new calendar event object and set its properties.
+                val event = SmartAlarmCalendarEvent(summary, description, location, status)
+                event.startTime = Date(startTimeMillis)
+                event.endTime = Date(endTimeMillis)
+
+                events.add(event)
+            }
+        }
+
         //TODO trigger update of cached results
     }
 }
+

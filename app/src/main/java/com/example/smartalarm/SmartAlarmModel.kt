@@ -221,7 +221,7 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
 
 class SmartAlarmModel(context: MainActivity) {
     var context : MainActivity = context
-    var calendar: SmartAlarmCalendar = SmartAlarmCalendar()
+    var calendar: SmartAlarmCalendar = SmartAlarmCalendar(context)
     var alarms : MutableList<SmartAlarmAlarm> =
         mutableListOf<SmartAlarmAlarm>(
             SmartAlarmAlarm(this,5, "Example"),
