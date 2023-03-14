@@ -33,12 +33,17 @@ class SmartAlarmUI {
 fun renderFilter(filter: SmartAlarmFilter){
     var textRegex by remember { mutableStateOf(TextFieldValue(filter.filter)) }
     Text(text = filter.filterType.name)
-    TextField(
-        value = textRegex,
-        onValueChange = {
-        textRegex = it
-        filter.filter = it.text
-    })
+
+    if(filter.active){
+        TextField(
+            value = textRegex,
+            onValueChange = {
+                textRegex = it
+                filter.filter = it.text
+            }
+        )
+    }
+
 }
 
 @Composable
