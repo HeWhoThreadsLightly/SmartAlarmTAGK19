@@ -6,19 +6,19 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.ContextCompat.startActivity
-import java.text.DateFormat
-import java.text.SimpleDateFormat
-import java.util.*
 
-import kotlinx.coroutines.flow.MutableStateFlow
 import android.content.Context
+import android.content.pm.PackageManager
 import android.media.AudioManager
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
+import android.provider.CalendarContract
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import java.util.*
 
 enum class SmartAlarmStartType{
     Before,
@@ -26,59 +26,54 @@ enum class SmartAlarmStartType{
     At
 }
 enum class SmartAlarmFilterType{
+
     CalendarName,
-    Summary,
+    Organizer,
+    Title,
+    Location,
     Description,
+    ColorRGB,
     StartTime,
     EndTime,
     Duration,
-    Color,
-    Status
+    All_Day,
+    RecurrenceRule,
+    RecurrenceDates,
+    RecurrenceExceptionRule,
+    RecurrenceExceptionDates,
+    Availability
 }
 
 class SmartAlarmFilter(alarm: SmartAlarmAlarm, type : SmartAlarmFilterType){
-    fun filter(event: SmartAlarmCalendarEvent): Boolean {
-        if(!active){
-            return true
-        }
-        when(filterType){
-            SmartAlarmFilterType.CalendarName -> TODO()
-            SmartAlarmFilterType.Summary -> {
-                return event.summary.matches(filter.toRegex())
-            }
-            SmartAlarmFilterType.Description -> {
-                return event.description.matches(filter.toRegex())
-            }
-            SmartAlarmFilterType.StartTime -> {
-                return event.startTimeString().matches(filter.toRegex())
-            }
-            SmartAlarmFilterType.EndTime ->{
-                return event.endTimeString().matches(filter.toRegex())
-            }
-            SmartAlarmFilterType.Duration -> {
-               return event.duration().matches(filter.toRegex())
-            }
-            SmartAlarmFilterType.Color -> TODO()
-            SmartAlarmFilterType.Status -> {
-                return event.status.matches(filter.toRegex())
-            }
-        }
-    }
     val alarm: SmartAlarmAlarm = alarm
     var filterType : SmartAlarmFilterType = type
     var active : Boolean = true
         set(value){
-            active = value
             alarm.filtersUpdated = true
+            field = value
         }
     var filter : String = ".*"
         set(value){
-            filter = value
+            filterAsRegex = value.toRegex()
             alarm.filtersUpdated = true
+            field = value
         }
+    private var filterAsRegex : Regex = ".*".toRegex()
+    fun filter(event: SmartAlarmCalendarEvent): Boolean {
+        if(!active){
+            return true
+        }
+        var str = event.eventData[filterType]
+        if(str == null){
+            str = ""
+        }
+        return str.matches(filterAsRegex)
+    }
 }
-
+var SmartAlarmActionGlobalNexID = 0
 open class SmartAlarmAction(var model: SmartAlarmModel){
+    val id: Int = SmartAlarmActionGlobalNexID++
+
     open fun begin(){
         Log.d("TAG", "Base start smart alarm action called")
     }
@@ -89,18 +84,18 @@ open class SmartAlarmAction(var model: SmartAlarmModel){
 }
 
 class ActionPlayYoutube (model: SmartAlarmModel, id : String): SmartAlarmAction(model){
-    var id = id
+    var video = id
     override fun begin(){
-        Log.d("TAG", "trying to start youtube video $id" )
+        Log.d("TAG", "trying to start youtube video $video" )
 
-        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$id"))
-        val webIntent : Intent = Uri.parse("http://www.youtube.com/watch?v=$id").let {
+        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$video"))
+        val webIntent : Intent = Uri.parse("http://www.youtube.com/watch?v=$video").let {
             Intent(Intent.ACTION_VIEW, it)
         }
 
         var i =    Intent(
             Intent.ACTION_VIEW,
-            Uri.parse("http://www.youtube.com/watch?v=$id")
+            Uri.parse("http://www.youtube.com/watch?v=$video")
         )
         try {
             startActivity(model.context, appIntent, null)
@@ -162,20 +157,14 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     var startType: SmartAlarmStartType = SmartAlarmStartType.Before
         set(value){
             updateEventStartTimes()
+            field = value
         }
     var startMinutes : Long = 5
         set(value){
             updateEventStartTimes()
+            field = value
         }
-    var filters : MutableList<SmartAlarmFilter> = mutableListOf(
-        SmartAlarmFilter(this, SmartAlarmFilterType.CalendarName),
-        SmartAlarmFilter(this, SmartAlarmFilterType.Summary),
-        SmartAlarmFilter(this, SmartAlarmFilterType.Description),
-        SmartAlarmFilter(this, SmartAlarmFilterType.StartTime),
-        SmartAlarmFilter(this, SmartAlarmFilterType.EndTime),
-        SmartAlarmFilter(this, SmartAlarmFilterType.Duration),
-        SmartAlarmFilter(this, SmartAlarmFilterType.Color)
-    )
+    var filters : EnumMap<SmartAlarmFilterType, SmartAlarmFilter> = EnumMap(SmartAlarmFilterType.values().associateWith { SmartAlarmFilter(this, it) })
     var actions : MutableList<SmartAlarmAction> = mutableListOf(
         SmartAlarmAction(model),
         SetVolume(model, 10),
@@ -184,7 +173,7 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
         ActionDelay(model,10)
     )
     private fun applyFiltersToEvent(event : SmartAlarmCalendarEvent): Boolean {
-        filters.forEach(){
+        filters.values.forEach(){
             if(!it.filter(event)){
                 return false
             }
@@ -216,29 +205,59 @@ class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
     }
 }
 
-class SmartAlarmModel(context: MainActivity) {
+class SmartAlarmModel(
+    context: MainActivity
+) {
     var context : MainActivity = context
+    var requestPermissionLauncher =  context.registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // Permission is granted. Continue the action or workflow in your
+            // app.
+            updateInternal()
+        } else {
+            // Explain to the user that the feature is unavailable because the
+            // feature requires a permission that the user has denied. At the
+            // same time, respect the user's decision. Don't link to system
+            // settings in an effort to convince the user to change their
+            // decision.
+        }
+    }
     var calendar: SmartAlarmCalendar = SmartAlarmCalendar(context)
     var alarms : MutableList<SmartAlarmAlarm> =
         mutableListOf<SmartAlarmAlarm>(
             SmartAlarmAlarm(this,5, "Example"),
             SmartAlarmAlarm(this,6, "Example2")
         )
-    private fun checkPermissions(callbackId: Int, vararg permissionsId: String) {
-        var permissions = true
-        for (p in permissionsId) {
-            permissions =
-                permissions && ContextCompat.checkSelfPermission(context, p) == PERMISSION_GRANTED
-        }
-        if (!permissions) ActivityCompat.requestPermissions(context, permissionsId, callbackId)
-    }
-
-    fun update(){
-        var callbackId = 42;
-        checkPermissions(callbackId, Manifest.permission.READ_CALENDAR);
+    private fun updateInternal(){
         calendar.update()
         alarms.forEach(){
             it.update()
+        }
+    }
+    fun update(){
+        when {
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.READ_CALENDAR
+            ) == PackageManager.PERMISSION_GRANTED -> {
+                // You can use the API that requires the permission.
+                updateInternal()
+            }
+            shouldShowRequestPermissionRationale(context, Manifest.permission.READ_CALENDAR) -> {
+            // In an educational UI, explain to the user why your app requires this
+            // permission for a specific feature to behave as expected, and what
+            // features are disabled if it's declined. In this UI, include a
+            // "cancel" or "no thanks" button that lets the user continue
+            // using your app without granting the permission.
+        }
+            else -> {
+                // You can directly ask for the permission.
+                // The registered ActivityResultCallback gets the result of this request.
+                requestPermissionLauncher.launch(
+                    Manifest.permission.READ_CALENDAR)
+            }
         }
     }
 }

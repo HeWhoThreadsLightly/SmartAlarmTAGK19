@@ -1,32 +1,33 @@
 package com.example.smartalarm
 
 import android.os.Build
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
-import androidx.compose.ui.unit.dp
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
-import java.time.LocalDateTime
 
 class MainActivity : ComponentActivity() {
+    var model : SmartAlarmModel = SmartAlarmModel(this)
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val scheduler = AndroidAlarmScheduler(this)
         var alarmItem: AlarmItem? = null
         setContent {
-            var model : SmartAlarmModel = SmartAlarmModel(this)
+            // Register the permissions callback, which handles the user's response to the
+            // system permissions dialog. Save the return value, an instance of
+            // ActivityResultLauncher. You can use either a val, as shown in this snippet,
+            // or a lateinit var in your onAttach() or onCreate() method.
+
+
 
             SmartAlarmTheme {
                 // A surface container using the 'background' color from the theme

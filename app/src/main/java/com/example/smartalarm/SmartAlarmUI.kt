@@ -104,7 +104,6 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
     var textName by remember { mutableStateOf(TextFieldValue(alarm.name)) }
     var textStart by remember { mutableStateOf(TextFieldValue("90")) }
     val data = remember{ mutableStateOf(alarm.actions) }
-    val dataOld = remember { mutableStateOf(List(10) { "$it" }) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         data.value = data.value.toMutableList().apply {
             Log.d("TAG", "renderAlarm: moved from ${this[from.index -1]} at ${from.index -1 } to ${this[to.index -1]} at ${to.index -1}")
@@ -122,7 +121,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                 .reorderable(state)
                 .detectReorderAfterLongPress(state)
         ) {
-            item(){
+            item("Header"){
                 Column(
                     modifier = Modifier
                         //.verticalScroll(rememberScrollState())
@@ -138,14 +137,14 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                     TextField(value = textStart, modifier = Modifier.fillMaxWidth(), onValueChange = {textStart = it})
                     Text(text = "Event in calendar")
                     Text(text = "Filters")
-                    alarm.filters.forEach{
+                    alarm.filters.values.forEach{
                         renderFilter(filter = it)
                     }
 
                     Text(text = "Alarm sequence")
                 }
             }
-            items(data.value) { item ->
+            items(data.value, {it.id}) { item ->
                 ReorderableItem(state, key = item) { isDragging ->
                     val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                     Column(
@@ -153,6 +152,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .shadow(elevation.value)
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
+                        //Text("Elevation = ${elevation.value}")
                         renderAction(item)
                     }
                 }
@@ -183,7 +183,6 @@ fun renderAlarmItem(navController: NavHostController, item: SmartAlarmAlarm){
 fun renderMain(navController: NavHostController, model: SmartAlarmModel){
 
     val data = remember{ mutableStateOf(model.alarms) }
-    val dataOld = remember { mutableStateOf(List(10) { "$it" }) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         data.value = data.value.toMutableList().apply {
             Log.d("TAG", "renderAlarm: moved from ${this[from.index -1]} at ${from.index -1 } to ${this[to.index -1]} at ${to.index -1}")
@@ -201,7 +200,7 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel){
                 .reorderable(state)
                 .detectReorderAfterLongPress(state)
         ) {
-            item(){
+            item(key = "Header"){
                 Column(
                     modifier = Modifier
                         //.verticalScroll(rememberScrollState())
@@ -222,7 +221,7 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel){
 
                 }
             }
-            items(data.value) { item ->
+            items(data.value, { it.id }) { item ->
                 ReorderableItem(state, key = item) { isDragging ->
                     val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                     Column(
