@@ -135,12 +135,9 @@ class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAct
 
     private fun setVolume(context: Context, volume: Int) {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-
-        for (stream in AudioManager.STREAM_VOICE_CALL..AudioManager.STREAM_NOTIFICATION) {
-            val maxVolume = audioManager.getStreamMaxVolume(stream)
-            val newVolume = (maxVolume * volume) / 100
-            audioManager.setStreamVolume(stream, newVolume, 0)
-        }
+        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+        val newVolume = (maxVolume * volume) / 100
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
     }
 }
 
