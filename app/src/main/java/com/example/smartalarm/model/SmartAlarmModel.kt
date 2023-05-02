@@ -1,4 +1,4 @@
-package com.example.smartalarm
+package com.example.smartalarm.model
 
 import android.Manifest
 import android.content.ActivityNotFoundException
@@ -11,13 +11,13 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.SystemClock
-import android.provider.CalendarContract
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
-import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import com.example.smartalarm.MainActivity
+import com.example.smartalarm.SmartAlarmCalendar
+import com.example.smartalarm.SmartAlarmCalendarEvent
+import com.example.smartalarm.SmartAlarmParsedEvent
 import java.util.*
 
 enum class SmartAlarmStartType{
@@ -25,127 +25,9 @@ enum class SmartAlarmStartType{
     After,
     At
 }
-enum class SmartAlarmFilterType{
-
-    CalendarName,
-    Organizer,
-    Title,
-    Location,
-    Description,
-    ColorRGB,
-    StartTime,
-    EndTime,
-    Duration,
-    All_Day,
-    RecurrenceRule,
-    RecurrenceDates,
-    RecurrenceExceptionRule,
-    RecurrenceExceptionDates,
-    Availability
-}
-
-class SmartAlarmFilter(alarm: SmartAlarmAlarm, type : SmartAlarmFilterType){
-    val alarm: SmartAlarmAlarm = alarm
-    var filterType : SmartAlarmFilterType = type
-    var active : Boolean = true
-        set(value){
-            alarm.filtersUpdated = true
-            field = value
-        }
-    var filter : String = ".*"
-        set(value){
-            filterAsRegex = value.toRegex()
-            alarm.filtersUpdated = true
-            field = value
-        }
-    private var filterAsRegex : Regex = ".*".toRegex()
-    fun filter(event: SmartAlarmCalendarEvent): Boolean {
-        if(!active){
-            return true
-        }
-        var str = event.eventData[filterType]
-        if(str == null){
-            str = ""
-        }
-        return str.matches(filterAsRegex)
-    }
-}
-var SmartAlarmActionGlobalNexID = 0
-open class SmartAlarmAction(var model: SmartAlarmModel){
-    val id: Int = SmartAlarmActionGlobalNexID++
-
-    open fun begin(){
-        Log.d("TAG", "Base start smart alarm action called")
-    }
-    open fun stop(){
-        Log.d("TAG", "Base stop smart alarm action called")
-
-    }
-}
-
-class ActionPlayYoutube (model: SmartAlarmModel, id : String): SmartAlarmAction(model){
-    var video = id
-    override fun begin(){
-        Log.d("TAG", "trying to start youtube video $video" )
-
-        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$video"))
-        val webIntent : Intent = Uri.parse("http://www.youtube.com/watch?v=$video").let {
-            Intent(Intent.ACTION_VIEW, it)
-        }
-
-        var i =    Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("http://www.youtube.com/watch?v=$video")
-        )
-        try {
-            startActivity(model.context, appIntent, null)
-        } catch (ex: ActivityNotFoundException) {
-            try {
-                startActivity(model.context, webIntent, null)
-            }catch (ex: ActivityNotFoundException){
-                Log.d("TAG", "Failed to start youtube video" )//TODO make UI popup
-            }
-        }
-    }
-    override fun stop(){
-
-    }
-}
-
-class ActionDelay(model: SmartAlarmModel, private val delaySeconds: Long) : SmartAlarmAction(model) {
-
-    override fun begin() {
-        Log.d("TAG", "start of ${delaySeconds}s delay")
-        SystemClock.sleep(delaySeconds * 1000)
-        Log.d("TAG", "${delaySeconds}s delay finished")
-    }
-
-    override fun stop() {
-        // implementation of stop method
-    }
-}
-
-class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAction(model) {
-
-    override fun begin() {
-        setVolume(model.context, volume)
-    }
-
-    override fun stop() {}
-
-    private fun setVolume(context: Context, volume: Int) {
-        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        val newVolume = (maxVolume * volume) / 100
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
-    }
-}
 
 
-
-
-
-class SmartAlarmAlarm(model :SmartAlarmModel, id: Int, name: String) {
+class SmartAlarmAlarm(model : SmartAlarmModel, id: Int, name: String) {
     val model: SmartAlarmModel = model
     val id: Int = id
     var name: String = name

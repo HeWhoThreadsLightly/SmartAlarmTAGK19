@@ -4,7 +4,6 @@ import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.annotation.RequiresApi
@@ -12,6 +11,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.smartalarm.graphics.AppScreen
+import com.example.smartalarm.model.AlarmItem
+import com.example.smartalarm.model.AndroidAlarmScheduler
+import com.example.smartalarm.model.SmartAlarmModel
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
 
 class MainActivity : ComponentActivity() {

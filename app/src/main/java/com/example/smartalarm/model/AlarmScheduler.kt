@@ -1,4 +1,6 @@
-package com.example.smartalarm
+package com.example.smartalarm.model
+
+import com.example.smartalarm.model.AlarmItem
 
 interface AlarmScheduler {
     fun scehdule(item: AlarmItem)
