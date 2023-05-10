@@ -26,34 +26,37 @@ open class SmartAlarmAction(var model: SmartAlarmModel){
 
 var SmartAlarmActionGlobalNexID = 0
 
-class ActionPlayYoutube (model: SmartAlarmModel, id : String): SmartAlarmAction(model){
-    var video = id
-    override fun begin(){
-        Log.d("TAG", "trying to start youtube video $video" )
-
-        val appIntent = Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:$video"))
-        val webIntent : Intent = Uri.parse("http://www.youtube.com/watch?v=$video").let {
-            Intent(Intent.ACTION_VIEW, it)
+class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(model) {
+    private val videoId = id
+    private val youtubeIntent: Intent by lazy {
+        Intent(Intent.ACTION_VIEW).apply {
+            setPackage("com.google.android.youtube")
+            data = Uri.parse("vnd.youtube:$videoId")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
+    }
 
-        var i =    Intent(
-            Intent.ACTION_VIEW,
-            Uri.parse("http://www.youtube.com/watch?v=$video")
-        )
+    override fun begin() {
+        Log.d("TAG", "Trying to start YouTube video $videoId")
+
         try {
-            ContextCompat.startActivity(model.context, appIntent, null)
+            ContextCompat.startActivity(model.context, youtubeIntent, null)
         } catch (ex: ActivityNotFoundException) {
+            Log.d("TAG", "YouTube app not found, trying web version")
+            val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$videoId"))
             try {
                 ContextCompat.startActivity(model.context, webIntent, null)
-            }catch (ex: ActivityNotFoundException){
-                Log.d("TAG", "Failed to start youtube video" )//TODO make UI popup
+            } catch (ex: ActivityNotFoundException) {
+                Log.d("TAG", "Failed to start YouTube video")
             }
         }
     }
-    override fun stop(){
 
+    override fun stop() {
+        // Implementation of stop method
     }
 }
+
 
 class ActionDelay(model: SmartAlarmModel, private val delaySeconds: Long) : SmartAlarmAction(model) {
 
