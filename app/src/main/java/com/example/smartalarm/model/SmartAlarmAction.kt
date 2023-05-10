@@ -8,6 +8,8 @@ import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.*
+
 
 open class SmartAlarmAction(var model: SmartAlarmModel){
     val id: Int = SmartAlarmActionGlobalNexID++
@@ -57,15 +59,16 @@ class ActionDelay(model: SmartAlarmModel, private val delaySeconds: Long) : Smar
 
     override fun begin() {
         Log.d("TAG", "start of ${delaySeconds}s delay")
-        SystemClock.sleep(delaySeconds * 1000)
-        Log.d("TAG", "${delaySeconds}s delay finished")
+        CoroutineScope(Dispatchers.Main).launch {
+            delay(delaySeconds * 1000)
+            Log.d("TAG", "${delaySeconds}s delay finished")
+        }
     }
 
     override fun stop() {
         // implementation of stop method
     }
 }
-
 class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAction(model) {
 
     override fun begin() {
