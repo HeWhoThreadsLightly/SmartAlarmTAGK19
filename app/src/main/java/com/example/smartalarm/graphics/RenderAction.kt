@@ -10,18 +10,4 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import com.example.smartalarm.model.SmartAlarmAction
 
-@Composable
-fun renderAction(event : SmartAlarmAction){
-    Row(
-        modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
-    ) {
-        Text(event.javaClass.name)
-        Button(
-            modifier = Modifier,
-            onClick = {
-                event.begin()
-            }) {
-            Text("Test")
-        }
-    }
-}
+//moved to class implementation look into moving the overwrites to this file

@@ -45,7 +45,6 @@ class SmartAlarmAlarm(model : SmartAlarmModel, id: Int, name: String) {
         }
     var filters : EnumMap<SmartAlarmFilterType, SmartAlarmFilter> = EnumMap(SmartAlarmFilterType.values().associateWith { SmartAlarmFilter(this, it) })
     var actions : MutableList<SmartAlarmAction> = mutableListOf(
-        SmartAlarmAction(model),
         SetVolume(model, 10),
         ActionDelay(model,10),
         ActionPlayYoutube(model,"ZqJfqIwpXZ8"),

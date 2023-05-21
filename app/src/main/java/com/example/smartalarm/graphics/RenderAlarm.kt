@@ -89,7 +89,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
                         //Text("Elevation = ${elevation.value}")
-                        renderAction(item)
+                        item.renderAction()
                     }
                 }
             }
