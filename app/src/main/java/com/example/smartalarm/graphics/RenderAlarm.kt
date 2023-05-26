@@ -60,7 +60,6 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                         //.verticalScroll(rememberScrollState())
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.error, RectangleShape)
-
                 ) {
                     TextField(value = textName, modifier = Modifier.fillMaxSize(), onValueChange = {
                         textName = it
@@ -78,6 +77,17 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                     }
 
                     Text(text = "Alarm sequence")
+
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        onClick = {
+                            // TODO: Handle button click, add alarm action
+                        }
+                    ) {
+                        Text("Add Alarm Action")
+                    }
                 }
             }
             items(data.value, { it.id }) { item ->
