@@ -104,7 +104,7 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
                         textVideo = it
                         videoId = it.text
                     },
-                    modifier = Modifier.width(165.dp)
+                    modifier = Modifier.width(167.dp)
                 )
                 Button(
                     onClick = { begin() },
@@ -153,6 +153,7 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
                         delaySeconds = it.text.toLongOrNull() ?: 0
                     },
                     modifier = Modifier.width(220.dp)
+                        .padding(start = 53.dp) //
                 )
                 Button(
                     onClick = { begin() },
@@ -165,8 +166,7 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
     }
 
 }
-
-    class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAction(model, "SetVolume") {
+class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAction(model, "SetVolume") {
 
     override fun begin() {
         setVolume(model.context, volume)
@@ -183,28 +183,43 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
 
     @Composable
     override fun renderAction() {
-        Column {
+        Box(
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+        ) {
             Row(
-                modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(simpelName)
-                Button(
-                    modifier = Modifier,
-                    onClick = { begin() }) {
-                    Text("Test")
-                }
-            }
-            Row {
+                Text(
+                    text = simpelName,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
                 var textVolume by remember { mutableStateOf(TextFieldValue(volume.toString())) }
                 TextField(
                     value = textVolume,
                     onValueChange = {
                         textVolume = it
                         volume = it.text.toIntOrNull() ?: 0
-                    }
+                    },
+                    modifier = Modifier
+                        .width(227.dp)
+                        .padding(start = 61.dp) // Add padding from the left
                 )
+                Button(
+                    onClick = { begin() },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text("Test")
+                }
             }
         }
     }
+
 }
+
+
+
+
+
+
 
