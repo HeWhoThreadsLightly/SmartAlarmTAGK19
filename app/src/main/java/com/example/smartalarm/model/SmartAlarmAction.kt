@@ -8,8 +8,7 @@ import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +20,8 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
 
 open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String){
     val id: Int = SmartAlarmActionGlobalNexID++
@@ -84,50 +85,88 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
     }
 
     @Composable
-    override fun renderAction(){
-        Column(){
+    override fun renderAction() {
+        Box(
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+        ) {
             Row(
-                modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(simpelName)
-                Button(
-                    modifier = Modifier,
-                    onClick = {
-                        begin()
-                    }) {
-                    Text("Test")
-                }
-            }
-            Row() {
-                var textVideo by remember { mutableStateOf( TextFieldValue( videoId )) }
+                Text(
+                    text = simpelName,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+                var textVideo by remember { mutableStateOf(TextFieldValue(videoId)) }
                 TextField(
                     value = textVideo,
                     onValueChange = {
                         textVideo = it
                         videoId = it.text
-                    }
+                    },
+                    modifier = Modifier.width(165.dp)
                 )
+                Button(
+                    onClick = { begin() },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text("Test")
+                }
             }
         }
-
     }
+
 }
 
-class ActionDelay(model: SmartAlarmModel, private val delaySeconds: Long) : SmartAlarmAction(model, "ActionDelay") {
+class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : SmartAlarmAction(model, "ActionDelay") {
 
     override fun begin() {
-        Log.d("TAG", "start of ${delaySeconds}s delay")
+        Log.d("TAG", "start of $delaySeconds s delay")
         CoroutineScope(Dispatchers.Main).launch {
             delay(delaySeconds * 1000)
-            Log.d("TAG", "${delaySeconds}s delay finished")
+            Log.d("TAG", "$delaySeconds s delay finished")
         }
     }
 
     override fun stop() {
         // implementation of stop method
     }
+
+    @Composable
+    override fun renderAction() {
+        Box(
+            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = simpelName,
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+                var textSeconds by remember { mutableStateOf(TextFieldValue(delaySeconds.toString())) }
+                TextField(
+                    value = textSeconds,
+                    onValueChange = {
+                        textSeconds = it
+                        delaySeconds = it.text.toLongOrNull() ?: 0
+                    },
+                    modifier = Modifier.width(220.dp)
+                )
+                Button(
+                    onClick = { begin() },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Text("Test")
+                }
+            }
+        }
+    }
+
 }
-class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAction(model, "SetVolume") {
+
+    class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAction(model, "SetVolume") {
 
     override fun begin() {
         setVolume(model.context, volume)
@@ -141,4 +180,31 @@ class SetVolume(model: SmartAlarmModel, private val volume: Int) : SmartAlarmAct
         val newVolume = (maxVolume * volume) / 100
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
     }
+
+    @Composable
+    override fun renderAction() {
+        Column {
+            Row(
+                modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+            ) {
+                Text(simpelName)
+                Button(
+                    modifier = Modifier,
+                    onClick = { begin() }) {
+                    Text("Test")
+                }
+            }
+            Row {
+                var textVolume by remember { mutableStateOf(TextFieldValue(volume.toString())) }
+                TextField(
+                    value = textVolume,
+                    onValueChange = {
+                        textVolume = it
+                        volume = it.text.toIntOrNull() ?: 0
+                    }
+                )
+            }
+        }
+    }
 }
+
