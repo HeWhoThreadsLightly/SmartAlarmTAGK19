@@ -8,7 +8,9 @@ import android.net.Uri
 import android.os.SystemClock
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,7 +39,9 @@ open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String){
         Log.d("TAG", "Base render smart alarm action called")
 
         Row(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+                .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
+                .padding(8.dp)
         ) {
             Text(simpelName)
             Button(
@@ -87,7 +91,9 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+                .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
+                .padding(8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -135,7 +141,9 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+                .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
+                .padding(8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -184,7 +192,9 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAct
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.secondary, RectangleShape)
+            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+                .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
+                .padding(8.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

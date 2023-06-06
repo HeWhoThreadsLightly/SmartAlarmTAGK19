@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.smartalarm.model.SmartAlarmModel
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -54,11 +56,11 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel){
                     modifier = Modifier
                         //.verticalScroll(rememberScrollState())
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.error, RectangleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RectangleShape)
 
                 ) {
 
-                    Text("Menu placeholder")
+                    Text("Smart Alarm", fontSize = 26.sp, modifier = Modifier.padding(8.dp))
                     Button(
                         modifier = Modifier,
                         onClick = {

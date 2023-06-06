@@ -22,9 +22,9 @@ fun AppScreen(model : SmartAlarmModel) {
             renderAlarm(navController, model, id)
         }
 
-        composable("ViewOneUpdateTask/{id}") {
+        composable("ViewOneFilters/{id}") {
             val id = it.arguments!!.getString("id")!!.toInt()
-            //UpdateItem(id, navController)
+            renderAlarmFilters(navController, model, id)
         }
 
         composable("CreateToDo") {
@@ -33,3 +33,4 @@ fun AppScreen(model : SmartAlarmModel) {
         }
     }
 }
+

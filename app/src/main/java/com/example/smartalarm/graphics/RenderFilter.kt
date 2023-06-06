@@ -25,10 +25,24 @@ fun renderFilter(filter: SmartAlarmFilter) {
             .border(1.dp, Color.Black)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Text(
-                text = filter.filterType.name,
-                modifier = Modifier.padding(start = 8.dp)
-            )
+            Row(){
+
+                Text(
+                    text = filter.filterType.name,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Switch(
+                    checked = isActive,
+                    onCheckedChange = {
+                        isActive = it
+                        filter.active = it
+                    },
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (isActive) {
@@ -42,16 +56,6 @@ fun renderFilter(filter: SmartAlarmFilter) {
                     )
                 }
 
-                Spacer(modifier = Modifier.weight(1f))
-
-                Switch(
-                    checked = isActive,
-                    onCheckedChange = {
-                        isActive = it
-                        filter.active = it
-                    },
-                    modifier = Modifier.padding(end = 8.dp)
-                )
             }
         }
     }
