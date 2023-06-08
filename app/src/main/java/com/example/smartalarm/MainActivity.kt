@@ -13,7 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.smartalarm.graphics.AppScreen
 import com.example.smartalarm.model.AlarmItem
-import com.example.smartalarm.model.AndroidAlarmScheduler
+import com.example.smartalarm.model.SmartAlarmAndroidAlarmScheduler
 import com.example.smartalarm.model.SmartAlarmModel
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
 
@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val scheduler = AndroidAlarmScheduler(this)
+        val scheduler = SmartAlarmAndroidAlarmScheduler(this)
         var alarmItem: AlarmItem? = null
         setContent {
             // Register the permissions callback, which handles the user's response to the

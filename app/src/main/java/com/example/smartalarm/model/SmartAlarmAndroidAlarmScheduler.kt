@@ -7,7 +7,7 @@ import android.content.Context
 import android.content.Intent
 import java.time.ZoneId
 
-class AndroidAlarmScheduler(
+class SmartAlarmAndroidAlarmScheduler(
     private val context: Context
 ): AlarmScheduler {
 

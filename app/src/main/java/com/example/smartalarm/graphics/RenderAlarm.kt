@@ -27,6 +27,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import androidx.compose.ui.Alignment.Vertical
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.example.smartalarm.model.SmartAlarmStartType
 
 @OptIn(ExperimentalMaterial3Api::class)
