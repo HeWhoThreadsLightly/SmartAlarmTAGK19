@@ -5,24 +5,26 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import java.time.ZoneId
 
 class SmartAlarmAndroidAlarmScheduler(
-    private val context: Context
-): AlarmScheduler {
+    private val context: Context,
+    private val alarmManager: AlarmManager
+) : AlarmScheduler {
 
-    private val alarmManager = context.getSystemService(AlarmManager::class.java)
+    //private val alarmManager = context.getSystemService(AlarmManager::class.java)//TODO caches here
 
     override fun scehdule(item: AlarmItem) {
-        val intent = Intent(context, AlarmReceiver::class.java).apply{
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("Extra_Message", item.message)
+            putExtra("Extra_AlarmID", item.alarmID)
+            putExtra("Extra_EventID", item.eventID)
             // V. I think this should call SmartAlarmAction.begin() here.
         }
 
 
         alarmManager.setExactAndAllowWhileIdle(
             AlarmManager.RTC_WAKEUP,
-            item.time.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000,
+            item.timeEpochMilli,
             PendingIntent.getBroadcast(
                 context,
                 item.hashCode(),

@@ -1,4 +1,5 @@
 package com.example.smartalarm.graphics
+
 import androidx.compose.runtime.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -7,7 +8,7 @@ import com.example.smartalarm.model.*
 
 
 @Composable
-fun AppScreen(model : SmartAlarmModel) {
+fun AppScreen(model: SmartAlarmModel) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,

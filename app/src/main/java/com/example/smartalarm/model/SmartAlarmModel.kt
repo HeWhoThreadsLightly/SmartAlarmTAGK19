@@ -1,93 +1,134 @@
 package com.example.smartalarm.model
 
 import android.Manifest
-import android.content.ActivityNotFoundException
-import android.content.Intent
-import android.net.Uri
-import android.util.Log
-import androidx.core.content.ContextCompat.startActivity
+import android.app.AlarmManager
 
-import android.content.Context
 import android.content.pm.PackageManager
-import android.media.AudioManager
-import android.os.SystemClock
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
 import com.example.smartalarm.MainActivity
 import com.example.smartalarm.SmartAlarmCalendar
-import com.example.smartalarm.SmartAlarmCalendarEvent
-import com.example.smartalarm.SmartAlarmParsedEvent
 import java.util.*
 
-enum class SmartAlarmStartType{
+enum class SmartAlarmStartType {
     Before,
     After,
     At
 }
 
+var globalNextID: Int = 0
 
-class SmartAlarmAlarm(model : SmartAlarmModel, id: Int, name: String) {
+class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     val model: SmartAlarmModel = model
     val id: Int = id
     var name: String = name
-    var filtersUpdated : Boolean = true
-    var matchingEvents : MutableList<SmartAlarmParsedEvent> = mutableListOf()
+    var filtersUpdated: Boolean = true
+    var parsedEvents: MutableList<SmartAlarmParsedEvent> = mutableListOf()
+    var alarmEvents: MutableMap<Int, AlarmItem> = mutableMapOf()
     var startType: SmartAlarmStartType = SmartAlarmStartType.Before
-        set(value){
+        set(value) {
             updateEventStartTimes()
             field = value
         }
-    var startMinutes : Long = 5
-        set(value){
+    var startMinutes: Long = 5
+        set(value) {
             updateEventStartTimes()
             field = value
         }
-    var filters : EnumMap<SmartAlarmFilterType, SmartAlarmFilter> = EnumMap(SmartAlarmFilterType.values().associateWith { SmartAlarmFilter(this, it) })
-    var actions : MutableList<SmartAlarmAction> = mutableListOf(
+    var filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter> =
+        EnumMap(SmartAlarmFilterType.values().associateWith { SmartAlarmFilter(this, it) })
+    var actions: MutableList<SmartAlarmAction> = mutableListOf(
         SetVolume(model, 10),
-        ActionDelay(model,10),
-        ActionPlayYoutube(model,"ZqJfqIwpXZ8"),
-        ActionDelay(model,10)
+        ActionDelay(model, 10),
+        ActionPlayYoutube(model, "ZqJfqIwpXZ8"),
+        ActionDelay(model, 10)
     )
-    private fun applyFiltersToEvent(event : SmartAlarmCalendarEvent): Boolean {
-        filters.values.forEach(){
-            if(!it.filter(event)){
-                return false
+
+    fun activeFilters(): List<SmartAlarmFilter> {
+        return filters.values.filter { it.active }
+    }
+    private fun updateDisplayedNextAlarmTime() {
+        alarmEvents.forEach() { (id, alarmItem) ->
+            model.scheduler.cancel(alarmItem)
+        }
+        alarmEvents.clear()
+        parsedEvents.forEach() {
+            if (it.matchesAll == SmartAlarmFilterMatch.Matches) {
+                var instant = it.startTime.toInstant().toEpochMilli()
+                var alarmItem = AlarmItem(
+                    instant,
+                    "Alarm sequence scheduled start from $name",
+                    id,
+                    globalNextID++
+                )
+                alarmEvents[alarmItem.eventID] = alarmItem
+                model.scheduler.scehdule(alarmItem)
             }
         }
-        return true
     }
-    fun updateDisplayedNextAlarmTime(){
-        //TODO may need to push the alarm update to ui or event service
-    }
-    fun updateMatchingEvents(){
-        var matching = mutableListOf<SmartAlarmParsedEvent>()
-        model.calendar.events.forEach{
-            if(applyFiltersToEvent(it)){
-                matching.add(SmartAlarmParsedEvent(this, it))
+
+    fun runAlarmSequence(step: Int) {
+
+        for (i in step..actions.count()) {
+            var action = actions[i]
+            if (action is ActionDelay) {
+                if (i != actions.count() - 1) {//if not last action
+                    var instant = System.currentTimeMillis() + action.delaySeconds * 1000;
+                    var alarmItem = AlarmItem(
+                        instant,
+                        "Alarm sequence ${action.delaySeconds} second delay",
+                        id,
+                        globalNextID++
+                    )
+                    alarmItem.step = i+1
+                    alarmEvents[alarmItem.eventID] = alarmItem
+                    model.scheduler.scehdule(alarmItem)
+                    return
+                }
+            } else {
+                action.begin()
             }
+
         }
-        matchingEvents = matching
+    }
+
+    private fun updateMatchingEvents() {
+        var parsed = mutableListOf<SmartAlarmParsedEvent>()
+        model.calendar.events.forEach {
+            parsed.add(SmartAlarmParsedEvent(this, it, filters))
+        }
+
+        parsedEvents = parsed
         updateDisplayedNextAlarmTime()
     }
 
-    fun updateEventStartTimes(){
-        matchingEvents.forEach(){
+    private fun updateEventStartTimes() {
+        parsedEvents.forEach() {
             it.updateStartDate(this)
         }
         updateDisplayedNextAlarmTime()
     }
-    fun update(){
+
+    fun update() {
         updateMatchingEvents()
+    }
+    fun triggerEvent(eventID: Int){
+        val alarmEvent = alarmEvents[eventID] ?: return
+        alarmEvents.remove(eventID)
+        runAlarmSequence(alarmEvent.step)
+
     }
 }
 
 class SmartAlarmModel(
-    context: MainActivity
+    context: MainActivity,
+    alarmManager: AlarmManager
 ) {
-    var context : MainActivity = context
-    var requestPermissionLauncher =  context.registerForActivityResult(
+    var context: MainActivity = context
+    var scheduler: SmartAlarmAndroidAlarmScheduler = SmartAlarmAndroidAlarmScheduler(context, alarmManager)
+    var receiver: AlarmReceiver = AlarmReceiver()
+    var requestPermissionLauncher = context.registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
@@ -103,18 +144,20 @@ class SmartAlarmModel(
         }
     }
     var calendar: SmartAlarmCalendar = SmartAlarmCalendar(context)
-    var alarms : MutableList<SmartAlarmAlarm> =
+    var alarms: MutableList<SmartAlarmAlarm> =
         mutableListOf<SmartAlarmAlarm>(
-            SmartAlarmAlarm(this,5, "Example"),
-            SmartAlarmAlarm(this,6, "Example2")
+            SmartAlarmAlarm(this, globalNextID++, "Example"),
+            SmartAlarmAlarm(this, globalNextID++, "Example2")
         )
-    private fun updateInternal(){
+
+    private fun updateInternal() {
         calendar.update()
-        alarms.forEach(){
+        alarms.forEach() {
             it.update()
         }
     }
-    fun update(){
+
+    fun update() {
         when {
             ContextCompat.checkSelfPermission(
                 context,
@@ -124,17 +167,27 @@ class SmartAlarmModel(
                 updateInternal()
             }
             shouldShowRequestPermissionRationale(context, Manifest.permission.READ_CALENDAR) -> {
-            // In an educational UI, explain to the user why your app requires this
-            // permission for a specific feature to behave as expected, and what
-            // features are disabled if it's declined. In this UI, include a
-            // "cancel" or "no thanks" button that lets the user continue
-            // using your app without granting the permission.
-        }
+                // In an educational UI, explain to the user why your app requires this
+                // permission for a specific feature to behave as expected, and what
+                // features are disabled if it's declined. In this UI, include a
+                // "cancel" or "no thanks" button that lets the user continue
+                // using your app without granting the permission.
+            }
             else -> {
                 // You can directly ask for the permission.
                 // The registered ActivityResultCallback gets the result of this request.
                 requestPermissionLauncher.launch(
-                    Manifest.permission.READ_CALENDAR)
+                    Manifest.permission.READ_CALENDAR
+                )
+            }
+        }
+    }
+
+    fun receiveMessage(message: String, alarmID: Int, eventID: Int) {
+        alarms.forEach(){
+            if(it.id == alarmID){
+                it.triggerEvent(eventID)
+                return
             }
         }
     }

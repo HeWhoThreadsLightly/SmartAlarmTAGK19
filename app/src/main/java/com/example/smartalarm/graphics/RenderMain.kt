@@ -28,7 +28,7 @@ import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
 @Composable
-fun renderMain(navController: NavHostController, model: SmartAlarmModel){
+fun renderMain(navController: NavHostController, model: SmartAlarmModel) {
 
     val data = remember { mutableStateOf(model.alarms) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->

@@ -32,16 +32,16 @@ import com.example.smartalarm.model.SmartAlarmStartType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun renderStartWhen(alarm : SmartAlarmAlarm) {
+fun renderStartWhen(alarm: SmartAlarmAlarm) {
 
 
-    val (selectedOption, onOptionSelected) = remember { mutableStateOf(SmartAlarmStartType.Before ) }
+    val (selectedOption, onOptionSelected) = remember { mutableStateOf(SmartAlarmStartType.Before) }
 
     var textStart by remember { mutableStateOf(TextFieldValue(alarm.startMinutes.toString())) }
     Text(text = "Start the alarm")
 
     Column {
-        SmartAlarmStartType.values().forEach{ index ->
+        SmartAlarmStartType.values().forEach { index ->
             val text = index.toString()
             Row(
                 Modifier
@@ -71,9 +71,10 @@ fun renderStartWhen(alarm : SmartAlarmAlarm) {
         modifier = Modifier.fillMaxWidth(),
         onValueChange = {
             textStart = it
-            alarm.startMinutes = it.toString().toLong() // TODO if selectedOption == SmartAlarmStartType.At interprit the value as a time of day like 13:45 in to minutes from midnight
+            alarm.startMinutes = it.toString()
+                .toLong() // TODO if selectedOption == SmartAlarmStartType.At interprit the value as a time of day like 13:45 in to minutes from midnight
         })
-    when(selectedOption){
+    when (selectedOption) {
         SmartAlarmStartType.Before -> Text("Minutes before the event")
         SmartAlarmStartType.After -> Text("Minutes after the event")
         SmartAlarmStartType.At -> Text("Minutes after midnight the same day")
@@ -83,7 +84,7 @@ fun renderStartWhen(alarm : SmartAlarmAlarm) {
 @Composable
 fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: Int) {
     var alarm = model.alarms.find { it.id == id }
-    if (alarm == null){
+    if (alarm == null) {
         Text("Id $id not found", modifier = Modifier.background(MaterialTheme.colorScheme.error))
         return
     }
@@ -152,15 +153,15 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                         Text("Add Alarm Action")
                     }
                     Button(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                    onClick = {
-                        // TODO: Handle button click, start the alarm action sequence now
-                    }
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        onClick = {
+                            alarm.runAlarmSequence(0);
+                        }
                     ) {
-                    Text("Test Action Sequence")
-                }
+                        Text("Test Action Sequence")
+                    }
                 }
             }
             items(data.value, { it.id }) { item ->

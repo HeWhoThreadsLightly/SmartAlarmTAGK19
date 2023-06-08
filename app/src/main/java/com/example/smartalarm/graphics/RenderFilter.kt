@@ -25,7 +25,7 @@ fun renderFilter(filter: SmartAlarmFilter) {
             .border(1.dp, Color.Black)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Row(){
+            Row() {
 
                 Text(
                     text = filter.filterType.name,

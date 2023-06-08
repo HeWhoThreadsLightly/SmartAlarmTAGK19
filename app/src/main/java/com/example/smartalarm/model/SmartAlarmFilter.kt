@@ -1,8 +1,6 @@
 package com.example.smartalarm.model
 
-import com.example.smartalarm.SmartAlarmCalendarEvent
-
-enum class SmartAlarmFilterType{
+enum class SmartAlarmFilterType {
 
     CalendarName,
     Organizer,
@@ -22,29 +20,44 @@ enum class SmartAlarmFilterType{
 }
 
 
-class SmartAlarmFilter(alarm: SmartAlarmAlarm, type : SmartAlarmFilterType){
+enum class SmartAlarmFilterMatch {
+    Unknown,
+    Matches,
+    Fails
+}
+
+class SmartAlarmFilter(alarm: SmartAlarmAlarm, type: SmartAlarmFilterType) {
     val alarm: SmartAlarmAlarm = alarm
-    var filterType : SmartAlarmFilterType = type
-    var active : Boolean = true
-        set(value){
+    var filterType: SmartAlarmFilterType = type
+    var active: Boolean = listOf(
+        SmartAlarmFilterType.CalendarName,
+        SmartAlarmFilterType.Title,
+        SmartAlarmFilterType.Description,
+        SmartAlarmFilterType.StartTime
+    ).contains(type)
+        set(value) {
             alarm.filtersUpdated = true
             field = value
         }
-    var filter : String = ".*"
-        set(value){
+    var filter: String = ".*"
+        set(value) {
             filterAsRegex = value.toRegex()
             alarm.filtersUpdated = true
             field = value
         }
-    private var filterAsRegex : Regex = ".*".toRegex()
-    fun filter(event: SmartAlarmCalendarEvent): Boolean {
-        if(!active){
-            return true
+    private var filterAsRegex: Regex = ".*".toRegex()
+    fun filter(event: SmartAlarmCalendarEvent): SmartAlarmFilterMatch {
+        if (!active) {
+            return SmartAlarmFilterMatch.Unknown
         }
         var str = event.eventData[filterType]
-        if(str == null){
+        if (str == null) {
             str = ""
         }
-        return str.matches(filterAsRegex)
+        if (str.matches(filterAsRegex)) {
+            return SmartAlarmFilterMatch.Matches
+        } else {
+            return SmartAlarmFilterMatch.Fails
+        }
     }
 }

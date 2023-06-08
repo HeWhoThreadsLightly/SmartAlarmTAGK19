@@ -25,21 +25,27 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 
-open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String){
+open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String) {
     val id: Int = SmartAlarmActionGlobalNexID++
-    open fun begin(){
+    open fun begin() {
         Log.d("TAG", "Base start smart alarm action called")
     }
-    open fun stop(){
+
+    open fun stop() {
         Log.d("TAG", "Base stop smart alarm action called")
 
     }
+
     @Composable
-    open fun renderAction(){
+    open fun renderAction() {
         Log.d("TAG", "Base render smart alarm action called")
 
         Row(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(4.dp)
+                )
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
@@ -58,7 +64,8 @@ open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String){
 
 var SmartAlarmActionGlobalNexID = 0
 
-class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(model, "ActionPlayYoutube") {
+class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
+    SmartAlarmAction(model, "ActionPlayYoutube") {
     private var videoId = id
     private val youtubeIntent: Intent by lazy {
         Intent(Intent.ACTION_VIEW).apply {
@@ -75,7 +82,8 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
             ContextCompat.startActivity(model.context, youtubeIntent, null)
         } catch (ex: ActivityNotFoundException) {
             Log.d("TAG", "YouTube app not found, trying web version")
-            val webIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$videoId"))
+            val webIntent =
+                Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$videoId"))
             try {
                 ContextCompat.startActivity(model.context, webIntent, null)
             } catch (ex: ActivityNotFoundException) {
@@ -91,7 +99,11 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(4.dp)
+                )
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
@@ -114,7 +126,9 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
                 )
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
                 ) {
                     Text("Test")
                 }
@@ -124,7 +138,8 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
 
 }
 
-class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : SmartAlarmAction(model, "ActionDelay") {
+class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
+    SmartAlarmAction(model, "ActionDelay") {
 
     override fun begin() {
         Log.d("TAG", "start of $delaySeconds s delay")
@@ -141,7 +156,11 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(4.dp)
+                )
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
@@ -160,12 +179,15 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
                         textSeconds = it
                         delaySeconds = it.text.toLongOrNull() ?: 0
                     },
-                    modifier = Modifier.width(168.dp)
+                    modifier = Modifier
+                        .width(168.dp)
                         .padding(start = 53.dp) //
                 )
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
                 ) {
                     Text("Test")
                 }
@@ -174,7 +196,9 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
     }
 
 }
-class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAction(model, "SetVolume") {
+
+class SetVolume(model: SmartAlarmModel, private var volume: Int) :
+    SmartAlarmAction(model, "SetVolume") {
 
     override fun begin() {
         setVolume(model.context, volume)
@@ -192,7 +216,11 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAct
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+            modifier = Modifier
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant,
+                    RoundedCornerShape(4.dp)
+                )
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
@@ -217,7 +245,9 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAct
                 )
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 8.dp)
 
                 ) {
                     Text("Test")

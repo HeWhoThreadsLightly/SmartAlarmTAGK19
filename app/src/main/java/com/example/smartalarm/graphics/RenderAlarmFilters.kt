@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -14,10 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.smartalarm.model.SmartAlarmFilterMatch
 import com.example.smartalarm.model.SmartAlarmModel
 
 @Composable
@@ -71,10 +72,58 @@ fun Table(
 @Composable
 fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel, id: Int) {
     var alarm = model.alarms.find { it.id == id }
-    if (alarm == null){
+    if (alarm == null) {
         Text("Id $id not found", modifier = Modifier.background(MaterialTheme.colorScheme.error))
         return
     }
+    var activeFilters = alarm.activeFilters()
+    @Composable
+    fun decidedBackgroundColor(columnIndex : Int, rowIndex : Int): Color {
+        if(rowIndex == 0 || rowIndex == 1){
+            return MaterialTheme.colorScheme.surfaceVariant
+        }
+        var event = alarm.parsedEvents[rowIndex + 2]
+        var filterType = activeFilters[columnIndex].filterType
+        var match = event.filterResults[filterType]
+
+        return when(match){
+            SmartAlarmFilterMatch.Unknown -> MaterialTheme.colorScheme.surfaceVariant
+            SmartAlarmFilterMatch.Matches -> Color.Green
+            SmartAlarmFilterMatch.Fails -> Color.Red
+            null -> MaterialTheme.colorScheme.error
+        }
+    }
+    @Composable
+    fun decidedTextColor(columnIndex : Int, rowIndex : Int): Color {
+        if(rowIndex == 0 || rowIndex == 1){
+            return MaterialTheme.colorScheme.onSurface
+        }
+        var event = alarm.parsedEvents[rowIndex + 2]
+        var filterType = activeFilters[columnIndex].filterType
+        var match = event.filterResults[filterType]
+
+        return when(match){
+            SmartAlarmFilterMatch.Unknown -> MaterialTheme.colorScheme.onSurface
+            SmartAlarmFilterMatch.Matches -> Color.Black
+            SmartAlarmFilterMatch.Fails -> Color.White
+            null -> MaterialTheme.colorScheme.onSurface
+        }
+    }
+
+    fun decidedText(columnIndex : Int, rowIndex : Int): String {
+
+        var filter = activeFilters[columnIndex]
+
+        return if(rowIndex == 0){
+            filter.filterType.name
+        }else if(rowIndex == 1){
+            filter.filter
+        }else{
+            var event = alarm.parsedEvents[rowIndex + 1]
+            event.event.eventData[filter.filterType]?: "NULL"
+        }
+    }
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -87,22 +136,22 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
 
                 Box(
                     modifier = Modifier.fillMaxSize()
-                ){
+                ) {
                     Table(
                         modifier = Modifier.matchParentSize(),
-                        columnCount = 3,
-                        rowCount = 10,
+                        columnCount = activeFilters.count(),
+                        rowCount = alarm.parsedEvents.count() + 2,
                         cellContent = { columnIndex, rowIndex ->
                             Row(
                                 modifier = Modifier
                                     .background(
-                                        MaterialTheme.colorScheme.surfaceVariant,
+                                        decidedBackgroundColor(columnIndex, rowIndex),
                                         RoundedCornerShape(4.dp)
                                     )
                                     .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                                     .padding(8.dp)
                             ) {
-                                Text("Column: $columnIndex; Row: $rowIndex")
+                                Text(text = decidedText(columnIndex, rowIndex), color = decidedTextColor(columnIndex, rowIndex))
                             }
 
                         })
