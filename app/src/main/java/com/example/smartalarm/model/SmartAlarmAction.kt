@@ -91,7 +91,10 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
     @Composable
     override fun renderAction() {
         Box(
-            modifier = Modifier.background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
+            modifier = Modifier.background(
+                MaterialTheme.colorScheme.surfaceVariant,
+                RoundedCornerShape(4.dp)
+            )
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
@@ -110,18 +113,22 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
                         textVideo = it
                         videoId = it.text
                     },
-                    modifier = Modifier.padding(start = 8.dp) // Add padding to the button
-                        .size(width = 100.dp, height = 32.dp),
+                    modifier = Modifier
+                        .padding(start = 8.dp) // Add padding to the button
+                        .widthIn(max = 100.dp)
+                        .height(32.dp),
                 )
+                Spacer(modifier = Modifier.width(8.dp)) // Add a spacer for spacing between TextField and Button
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text("Test")
                 }
             }
         }
     }
+
 
 }
 
@@ -162,7 +169,8 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
                         delaySeconds = it.text.toLongOrNull() ?: 0
                     },
                     modifier = Modifier.padding(start = 8.dp) // Add padding to the button
-                        .size(width = 100.dp, height = 32.dp),
+                        .widthIn(max = 150.dp)
+                        .height(32.dp),
                 )
                 Button(
                     onClick = { begin() },
@@ -214,7 +222,8 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAct
                     },
                     modifier = Modifier
                         .padding(start = 8.dp) // Add padding to the button
-                        .size(width = 100.dp, height = 32.dp), // Add padding from the left
+                        .widthIn(max = 150.dp)
+                        .height(32.dp),// Add padding from the left
                 )
                 Button(
                     onClick = { begin() },
