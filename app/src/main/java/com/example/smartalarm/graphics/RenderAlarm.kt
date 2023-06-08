@@ -197,8 +197,8 @@ fun renderAlarmItem(navController: NavHostController, item: SmartAlarmAlarm) {
         Text(item.name)
         Button(
             modifier = Modifier
-                .padding(start = 8.dp) // Add padding to the button
-                .size(width = 100.dp, height = 32.dp), // Specify the size of the button
+                .padding(start = 20.dp) // Add padding to the button
+                .fillMaxSize(), // Specify the size of the button
             onClick = {
                 navController.navigate("ViewOne/${item.id}")
                 //TODO open alarm in new context

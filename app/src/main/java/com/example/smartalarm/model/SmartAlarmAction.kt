@@ -122,8 +122,12 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
                         textVideo = it
                         videoId = it.text
                     },
-                    modifier = Modifier.width(120.dp)
+                    modifier = Modifier
+                        .padding(start = 8.dp) // Add padding to the button
+                        .widthIn(max = 100.dp)
+                        .height(32.dp),
                 )
+                Spacer(modifier = Modifier.width(8.dp)) // Add a spacer for spacing between TextField and Button
                 Button(
                     onClick = { begin() },
                     modifier = Modifier
@@ -135,7 +139,6 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
             }
         }
     }
-
 }
 
 class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
@@ -179,9 +182,9 @@ class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
                         textSeconds = it
                         delaySeconds = it.text.toLongOrNull() ?: 0
                     },
-                    modifier = Modifier
-                        .width(168.dp)
-                        .padding(start = 53.dp) //
+                    modifier = Modifier.padding(start = 8.dp) // Add padding to the button
+                        .widthIn(max = 150.dp)
+                        .height(32.dp),
                 )
                 Button(
                     onClick = { begin() },
@@ -240,8 +243,9 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) :
                         volume = it.text.toIntOrNull() ?: 0
                     },
                     modifier = Modifier
-                        .width(171.dp)
-                        .padding(start = 61.dp) // Add padding from the left
+                        .padding(start = 8.dp) // Add padding to the button
+                        .widthIn(max = 150.dp)
+                        .height(32.dp),// Add padding from the left
                 )
                 Button(
                     onClick = { begin() },
