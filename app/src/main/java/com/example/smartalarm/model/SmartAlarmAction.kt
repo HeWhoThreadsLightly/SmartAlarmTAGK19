@@ -110,11 +110,11 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) : SmartAlarmAction(m
                         textVideo = it
                         videoId = it.text
                     },
-                    modifier = Modifier.width(167.dp)
+                    modifier = Modifier.width(120.dp)
                 )
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
                 ) {
                     Text("Test")
                 }
@@ -160,12 +160,12 @@ class ActionDelay(model: SmartAlarmModel, private var delaySeconds: Long) : Smar
                         textSeconds = it
                         delaySeconds = it.text.toLongOrNull() ?: 0
                     },
-                    modifier = Modifier.width(220.dp)
+                    modifier = Modifier.width(168.dp)
                         .padding(start = 53.dp) //
                 )
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
                 ) {
                     Text("Test")
                 }
@@ -212,12 +212,13 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) : SmartAlarmAct
                         volume = it.text.toIntOrNull() ?: 0
                     },
                     modifier = Modifier
-                        .width(227.dp)
+                        .width(171.dp)
                         .padding(start = 61.dp) // Add padding from the left
                 )
                 Button(
                     onClick = { begin() },
-                    modifier = Modifier.padding(start = 8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+
                 ) {
                     Text("Test")
                 }
