@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -21,7 +22,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.smartalarm.model.SmartAlarmAlarm
 import com.example.smartalarm.model.SmartAlarmModel
+import com.example.smartalarm.model.globalNextID
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
@@ -39,6 +42,7 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel) {
             )
             add(to.index - 1, removeAt(from.index - 1))//Note library indexes by 1
         }
+        model.alarms.add(to.index - 1, model.alarms.removeAt(from.index - 1))//Note library indexes by 1
     })
 
     Surface(
@@ -61,13 +65,25 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel) {
                 ) {
 
                     Text("Smart Alarm", fontSize = 26.sp, modifier = Modifier.padding(8.dp))
-                    Button(
-                        modifier = Modifier,
-                        onClick = {
-                            model.update()
-                            //TODO open alarm in new context
-                        }) {
-                        Text("Update calendar")
+                    Row {
+                        Button(
+                            modifier = Modifier,
+                            onClick = {
+                                model.update()
+                            }) {
+                            Text("Update calendar")
+                        }
+
+                        Button(
+                            modifier = Modifier,
+                            onClick = {
+                                val newID = globalNextID++
+                                model.alarms.add(SmartAlarmAlarm(model, newID, "New alarm"))
+                                navController.navigate("ViewOne/${newID}")
+
+                            }) {
+                            Text("New Alarm")
+                        }
                     }
 
                 }

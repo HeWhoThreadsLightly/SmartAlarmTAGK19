@@ -77,32 +77,34 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
         return
     }
     var activeFilters = alarm.activeFilters()
+
     @Composable
-    fun decidedBackgroundColor(columnIndex : Int, rowIndex : Int): Color {
-        if(rowIndex == 0 || rowIndex == 1){
+    fun decidedBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
+        if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.surfaceVariant
         }
-        var event = alarm.parsedEvents[rowIndex + 2]
+        var event = alarm.parsedEvents[rowIndex - 2]
         var filterType = activeFilters[columnIndex].filterType
         var match = event.filterResults[filterType]
 
-        return when(match){
+        return when (match) {
             SmartAlarmFilterMatch.Unknown -> MaterialTheme.colorScheme.surfaceVariant
             SmartAlarmFilterMatch.Matches -> Color.Green
             SmartAlarmFilterMatch.Fails -> Color.Red
             null -> MaterialTheme.colorScheme.error
         }
     }
+
     @Composable
-    fun decidedTextColor(columnIndex : Int, rowIndex : Int): Color {
-        if(rowIndex == 0 || rowIndex == 1){
+    fun decidedTextColor(columnIndex: Int, rowIndex: Int): Color {
+        if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.onSurface
         }
-        var event = alarm.parsedEvents[rowIndex + 2]
+        var event = alarm.parsedEvents[rowIndex - 2]
         var filterType = activeFilters[columnIndex].filterType
         var match = event.filterResults[filterType]
 
-        return when(match){
+        return when (match) {
             SmartAlarmFilterMatch.Unknown -> MaterialTheme.colorScheme.onSurface
             SmartAlarmFilterMatch.Matches -> Color.Black
             SmartAlarmFilterMatch.Fails -> Color.White
@@ -110,17 +112,17 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
         }
     }
 
-    fun decidedText(columnIndex : Int, rowIndex : Int): String {
+    fun decidedText(columnIndex: Int, rowIndex: Int): String {
 
         var filter = activeFilters[columnIndex]
 
-        return if(rowIndex == 0){
+        return if (rowIndex == 0) {
             filter.filterType.name
-        }else if(rowIndex == 1){
+        } else if (rowIndex == 1) {
             filter.filter
-        }else{
-            var event = alarm.parsedEvents[rowIndex + 1]
-            event.event.eventData[filter.filterType]?: "NULL"
+        } else {
+            var event = alarm.parsedEvents[rowIndex - 2]
+            event.event.eventData[filter.filterType] ?: "NULL"
         }
     }
 
@@ -151,7 +153,10 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
                                     .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                                     .padding(8.dp)
                             ) {
-                                Text(text = decidedText(columnIndex, rowIndex), color = decidedTextColor(columnIndex, rowIndex))
+                                Text(
+                                    text = decidedText(columnIndex, rowIndex),
+                                    color = decidedTextColor(columnIndex, rowIndex)
+                                )
                             }
 
                         })

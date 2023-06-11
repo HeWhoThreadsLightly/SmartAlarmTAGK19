@@ -6,15 +6,13 @@ import android.content.Intent
 import android.media.AudioManager
 import android.net.Uri
 import android.os.SystemClock
+import android.util.Half.toFloat
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -23,9 +21,34 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import org.json.JSONObject
+import kotlin.math.roundToInt
 
-open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String) {
+fun SmartAlarmAction(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmAction {
+    when (json.getString("type")) {
+        "SmartAlarmAction" -> {
+            return SmartAlarmAction(alarm, "Serialization error base class")
+        }
+        "ActionDelay" -> {
+            return ActionDelay(alarm, json.getLong("delaySeconds"))
+        }
+        "SetVolume" -> {
+            return SetVolume(alarm, json.getInt("volume"))
+        }
+        "ActionPlayYoutube" -> {
+            return ActionPlayYoutube(alarm, json.getString("videoId"))
+        }
+        else -> {
+
+            Log.d("TAG", "Unknown AlarmAction type")
+            return SmartAlarmAction(alarm, "Serialization error unknown type")
+        }
+    }
+}
+
+open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpelName: String) {
     val id: Int = SmartAlarmActionGlobalNexID++
     open fun begin() {
         Log.d("TAG", "Base start smart alarm action called")
@@ -40,7 +63,7 @@ open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String) 
     open fun renderAction() {
         Log.d("TAG", "Base render smart alarm action called")
 
-        Row(
+        Column(
             modifier = Modifier
                 .background(
                     MaterialTheme.colorScheme.surfaceVariant,
@@ -50,22 +73,49 @@ open class SmartAlarmAction(var model: SmartAlarmModel, var simpelName: String) 
                 .padding(8.dp)
         ) {
             Text(simpelName)
-            Button(
-                modifier = Modifier,
-                onClick = {
-                    begin()
-                }) {
-                Text("Test")
+
+            Row() {
+                Button(
+                    onClick = {
+                        alarm.actions.remove(this@SmartAlarmAction)
+                        alarm.invalidate()
+                    },
+                    modifier = Modifier
+                        .weight(0.5F)
+                        .padding(start = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Red
+                    )
+
+                ) {
+                    Text("Remove")
+                }
+
+                Button(
+                    onClick = { begin() },
+                    modifier = Modifier
+                        .weight(0.5F)
+                        .padding(start = 8.dp)
+
+                ) {
+                    Text("Test")
+                }
             }
         }
+    }
+
+    open fun serialize(): JSONObject {
+        var json = JSONObject()
+        json.put("type", "SmartAlarmAction")
+        return json
     }
 }
 
 
 var SmartAlarmActionGlobalNexID = 0
 
-class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
-    SmartAlarmAction(model, "ActionPlayYoutube") {
+class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
+    SmartAlarmAction(alarm, "ActionPlayYoutube") {
     private var videoId = id
     private val youtubeIntent: Intent by lazy {
         Intent(Intent.ACTION_VIEW).apply {
@@ -75,17 +125,24 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
         }
     }
 
+    override fun serialize(): JSONObject {
+        var json = JSONObject()
+        json.put("type", "ActionPlayYoutube")
+        json.put("videoId", videoId)
+        return json
+    }
+
     override fun begin() {
         Log.d("TAG", "Trying to start YouTube video $videoId")
 
         try {
-            ContextCompat.startActivity(model.context, youtubeIntent, null)
+            ContextCompat.startActivity(alarm.model.context, youtubeIntent, null)
         } catch (ex: ActivityNotFoundException) {
             Log.d("TAG", "YouTube app not found, trying web version")
             val webIntent =
                 Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=$videoId"))
             try {
-                ContextCompat.startActivity(model.context, webIntent, null)
+                ContextCompat.startActivity(alarm.model.context, webIntent, null)
             } catch (ex: ActivityNotFoundException) {
                 Log.d("TAG", "Failed to start YouTube video")
             }
@@ -107,9 +164,9 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = simpelName,
@@ -123,26 +180,46 @@ class ActionPlayYoutube(model: SmartAlarmModel, id: String) :
                         videoId = it.text
                     },
                     modifier = Modifier
-                        .padding(start = 8.dp) // Add padding to the button
-                        .widthIn(max = 100.dp)
-                        .height(32.dp),
+                        .padding(start = 8.dp), // Add padding to the button
+                    colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colorScheme.onSurface)
                 )
                 Spacer(modifier = Modifier.width(8.dp)) // Add a spacer for spacing between TextField and Button
-                Button(
-                    onClick = { begin() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp)
-                ) {
-                    Text("Test")
+
+                Row() {
+                    Button(
+                        onClick = {
+                            alarm.actions.remove(this@ActionPlayYoutube)
+                            alarm.invalidate()
+                        },
+                        modifier = Modifier
+                            .weight(0.5F)
+                            .padding(start = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        )
+
+                    ) {
+                        Text("Remove")
+                    }
+
+                    Button(
+                        onClick = { begin() },
+                        modifier = Modifier
+                            .weight(0.5F)
+                            .padding(start = 8.dp)
+
+                    ) {
+                        Text("Test")
+                    }
                 }
             }
+
         }
     }
 }
 
-class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
-    SmartAlarmAction(model, "ActionDelay") {
+class ActionDelay(alarm: SmartAlarmAlarm, var delaySeconds: Long) :
+    SmartAlarmAction(alarm, "ActionDelay") {
 
     override fun begin() {
         Log.d("TAG", "start of $delaySeconds s delay")
@@ -150,6 +227,13 @@ class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
             delay(delaySeconds * 1000)
             Log.d("TAG", "$delaySeconds s delay finished")
         }
+    }
+
+    override fun serialize(): JSONObject {
+        var json = JSONObject()
+        json.put("type", "ActionDelay")
+        json.put("delaySeconds", delaySeconds)
+        return json
     }
 
     override fun stop() {
@@ -167,9 +251,9 @@ class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = simpelName,
@@ -182,29 +266,57 @@ class ActionDelay(model: SmartAlarmModel, var delaySeconds: Long) :
                         textSeconds = it
                         delaySeconds = it.text.toLongOrNull() ?: 0
                     },
-                    modifier = Modifier.padding(start = 8.dp) // Add padding to the button
-                        .widthIn(max = 150.dp)
-                        .height(32.dp),
-                )
-                Button(
-                    onClick = { begin() },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp)
-                ) {
-                    Text("Test")
+                        .padding(start = 8.dp), // Add padding to the button
+                    colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colorScheme.onSurface)
+                )
+
+                Row() {
+                    Button(
+                        onClick = {
+                            alarm.actions.remove(this@ActionDelay)
+                            alarm.invalidate()
+                        },
+                        modifier = Modifier
+                            .weight(0.5F)
+                            .padding(start = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        )
+
+                    ) {
+                        Text("Remove")
+                    }
+
+                    Button(
+                        onClick = { begin() },
+                        modifier = Modifier
+                            .weight(0.5F)
+                            .padding(start = 8.dp)
+
+                    ) {
+                        Text("Test")
+                    }
                 }
             }
+
         }
     }
-
 }
 
-class SetVolume(model: SmartAlarmModel, private var volume: Int) :
-    SmartAlarmAction(model, "SetVolume") {
+class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
+    SmartAlarmAction(alarm, "SetVolume") {
 
     override fun begin() {
-        setVolume(model.context, volume)
+        setVolume(alarm.model.context, volume)
+    }
+
+    override fun serialize(): JSONObject {
+        var json = JSONObject()
+        json.put("type", "SetVolume")
+        json.put("volume", volume)
+        json.put("simpelName", simpelName)
+        return json
     }
 
     override fun stop() {}
@@ -212,8 +324,9 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) :
     private fun setVolume(context: Context, volume: Int) {
         val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        val newVolume = (maxVolume * volume) / 100
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+        val newVolume = (maxVolume.toFloat() * volume.toFloat() / 100F)
+        Log.d("TAG", "Setting volume to $newVolume, max is $maxVolume")
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume.roundToInt(), 0)
     }
 
     @Composable
@@ -227,9 +340,9 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) :
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
-            Row(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = simpelName,
@@ -243,18 +356,35 @@ class SetVolume(model: SmartAlarmModel, private var volume: Int) :
                         volume = it.text.toIntOrNull() ?: 0
                     },
                     modifier = Modifier
-                        .padding(start = 8.dp) // Add padding to the button
-                        .widthIn(max = 150.dp)
-                        .height(32.dp),// Add padding from the left
+                        .padding(start = 8.dp), // Add padding to the button
+                    colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colorScheme.onSurface)
                 )
-                Button(
-                    onClick = { begin() },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 8.dp)
+                Row() {
+                    Button(
+                        onClick = {
+                            alarm.actions.remove(this@SetVolume)
+                            alarm.invalidate()
+                        },
+                        modifier = Modifier
+                            .weight(0.5F)
+                            .padding(start = 8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        )
 
-                ) {
-                    Text("Test")
+                    ) {
+                        Text("Remove")
+                    }
+
+                    Button(
+                        onClick = { begin() },
+                        modifier = Modifier
+                            .weight(0.5F)
+                            .padding(start = 8.dp)
+
+                    ) {
+                        Text("Test")
+                    }
                 }
             }
         }

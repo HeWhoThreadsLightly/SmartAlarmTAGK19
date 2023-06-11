@@ -4,11 +4,15 @@ import android.Manifest
 import android.app.AlarmManager
 
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.core.content.ContextCompat
+import androidx.navigation.NavHostController
 import com.example.smartalarm.MainActivity
 import com.example.smartalarm.SmartAlarmCalendar
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.*
 
 enum class SmartAlarmStartType {
@@ -18,6 +22,33 @@ enum class SmartAlarmStartType {
 }
 
 var globalNextID: Int = 0
+var configAddNotMatchingToFilterList: Boolean = true
+fun SmartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
+    var alarm = SmartAlarmAlarm(model, json.getInt("id"), json.getString("name"))
+
+    alarm.startType = SmartAlarmStartType.valueOf(json.getString("startType"))
+    alarm.startMinutes = json.getInt("startMinutes")
+
+
+    var filtersJ = json.getJSONArray("filters")
+    for (i in 0 until filtersJ.length()) {
+        var filter = SmartAlarmFilter(alarm, filtersJ.getJSONObject(i))
+        alarm.filters[filter.filterType] = filter
+    }
+
+    var actionsJ = json.getJSONArray("actions")
+    for (i in 0 until actionsJ.length()) {
+        alarm.actions.add(SmartAlarmAction(alarm, actionsJ.getJSONObject(i)))
+    }
+
+    var alarmsJ = json.getJSONArray("alarms")
+    for (i in 0 until alarmsJ.length()) {
+        var alarmItem = AlarmItem(alarmsJ.getJSONObject(i))
+        alarm.alarmEvents[alarmItem.eventID] = alarmItem
+    }
+
+    return alarm
+}
 
 class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     val model: SmartAlarmModel = model
@@ -31,7 +62,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
             updateEventStartTimes()
             field = value
         }
-    var startMinutes: Long = 5
+    var startMinutes: Int = 5
         set(value) {
             updateEventStartTimes()
             field = value
@@ -39,15 +70,16 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     var filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter> =
         EnumMap(SmartAlarmFilterType.values().associateWith { SmartAlarmFilter(this, it) })
     var actions: MutableList<SmartAlarmAction> = mutableListOf(
-        SetVolume(model, 10),
-        ActionDelay(model, 10),
-        ActionPlayYoutube(model, "ZqJfqIwpXZ8"),
-        ActionDelay(model, 10)
+        //SetVolume(model, 10),
+        //ActionDelay(model, 10),
+        //ActionPlayYoutube(model, "ZqJfqIwpXZ8"),
+        //ActionDelay(model, 10)
     )
 
     fun activeFilters(): List<SmartAlarmFilter> {
         return filters.values.filter { it.active }
     }
+
     private fun updateDisplayedNextAlarmTime() {
         alarmEvents.forEach() { (id, alarmItem) ->
             model.scheduler.cancel(alarmItem)
@@ -56,21 +88,24 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
         parsedEvents.forEach() {
             if (it.matchesAll == SmartAlarmFilterMatch.Matches) {
                 var instant = it.startTime.toInstant().toEpochMilli()
-                var alarmItem = AlarmItem(
-                    instant,
-                    "Alarm sequence scheduled start from $name",
-                    id,
-                    globalNextID++
-                )
-                alarmEvents[alarmItem.eventID] = alarmItem
-                model.scheduler.scehdule(alarmItem)
+                if (instant >= System.currentTimeMillis()) {
+
+                    var alarmItem = AlarmItem(
+                        instant,
+                        "Alarm sequence scheduled start from $name",
+                        id,
+                        globalNextID++
+                    )
+                    alarmEvents[alarmItem.eventID] = alarmItem
+                    model.scheduler.scehdule(alarmItem)
+                }
             }
         }
     }
 
     fun runAlarmSequence(step: Int) {
 
-        for (i in step..actions.count()) {
+        for (i in step until actions.count()) {
             var action = actions[i]
             if (action is ActionDelay) {
                 if (i != actions.count() - 1) {//if not last action
@@ -81,7 +116,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
                         id,
                         globalNextID++
                     )
-                    alarmItem.step = i+1
+                    alarmItem.step = i + 1
                     alarmEvents[alarmItem.eventID] = alarmItem
                     model.scheduler.scehdule(alarmItem)
                     return
@@ -96,7 +131,13 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     private fun updateMatchingEvents() {
         var parsed = mutableListOf<SmartAlarmParsedEvent>()
         model.calendar.events.forEach {
-            parsed.add(SmartAlarmParsedEvent(this, it, filters))
+            if (it.startTime.toInstant().toEpochMilli() >= System.currentTimeMillis()) {
+                var event = SmartAlarmParsedEvent(this, it, filters)
+
+                if (event.matchesAll == SmartAlarmFilterMatch.Matches || configAddNotMatchingToFilterList) {
+                    parsed.add(event)
+                }
+            }
         }
 
         parsedEvents = parsed
@@ -113,12 +154,74 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     fun update() {
         updateMatchingEvents()
     }
-    fun triggerEvent(eventID: Int){
+
+    fun triggerEvent(eventID: Int) {
         val alarmEvent = alarmEvents[eventID] ?: return
         alarmEvents.remove(eventID)
         runAlarmSequence(alarmEvent.step)
 
     }
+
+    fun invalidate() {
+        model.navController.popBackStack()
+        model.navController.navigate("ViewOne/${id}")
+    }
+
+    fun serialize(): JSONObject {
+        var json = JSONObject()
+        json.put("name", name)
+        json.put("id", id)
+        json.put("startType", startType.name)
+        json.put("startMinutes", startMinutes)
+
+        var filtersJ = JSONArray()
+        filters.forEach() {
+            val obj = it.value.serialize()
+            //Log.d("TAG", "saving ${obj.toString(4)}")
+            filtersJ.put(obj)
+        }
+        json.put("filters", filtersJ)
+
+        var actionsJ = JSONArray()
+        actions.forEach() {
+            val obj = it.serialize()
+            //Log.d("TAG", "saving ${obj.toString(4)}")
+            actionsJ.put(obj)
+        }
+        json.put("actions", actionsJ)
+
+        var alarmsJ = JSONArray()
+        alarmEvents.forEach() {
+            val obj = it.value.serialize()
+            //Log.d("TAG", "saving ${obj.toString(4)}")
+            alarmsJ.put(obj)
+        }
+        json.put("alarms", alarmsJ)
+
+        return json
+    }
+}
+
+fun SmartAlarmModel(
+    context: MainActivity,
+    alarmManager: AlarmManager,
+    JSONstr: String
+): SmartAlarmModel {
+
+    var json = JSONObject(JSONstr)
+    globalNextID = json.getInt("globalNextID")
+    var model = SmartAlarmModel(context, alarmManager)
+    var alarmsJ = json.getJSONArray("alarms")
+
+    //Log.d("TAG", "parsed alarms as ${alarmsJ.toString(4)}")
+    for (i in 0 until alarmsJ.length()) {
+
+        //Log.d("TAG", "Alarm index $i")
+
+        //Log.d("TAG", "Alarm $i is ${alarmsJ.getJSONObject(i)}")
+        model.alarms.add(SmartAlarmAlarm(model, alarmsJ.getJSONObject(i)))
+    }
+    return model
 }
 
 class SmartAlarmModel(
@@ -126,8 +229,10 @@ class SmartAlarmModel(
     alarmManager: AlarmManager
 ) {
     var context: MainActivity = context
-    var scheduler: SmartAlarmAndroidAlarmScheduler = SmartAlarmAndroidAlarmScheduler(context, alarmManager)
+    var scheduler: SmartAlarmAndroidAlarmScheduler =
+        SmartAlarmAndroidAlarmScheduler(context, alarmManager)
     var receiver: AlarmReceiver = AlarmReceiver()
+    lateinit var navController: NavHostController
     var requestPermissionLauncher = context.registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -146,8 +251,8 @@ class SmartAlarmModel(
     var calendar: SmartAlarmCalendar = SmartAlarmCalendar(context)
     var alarms: MutableList<SmartAlarmAlarm> =
         mutableListOf<SmartAlarmAlarm>(
-            SmartAlarmAlarm(this, globalNextID++, "Example"),
-            SmartAlarmAlarm(this, globalNextID++, "Example2")
+            //SmartAlarmAlarm(this, globalNextID++, "Example"),
+            //SmartAlarmAlarm(this, globalNextID++, "Example2")
         )
 
     private fun updateInternal() {
@@ -184,11 +289,37 @@ class SmartAlarmModel(
     }
 
     fun receiveMessage(message: String, alarmID: Int, eventID: Int) {
-        alarms.forEach(){
-            if(it.id == alarmID){
+        alarms.forEach() {
+            if (it.id == alarmID) {
                 it.triggerEvent(eventID)
                 return
             }
         }
+    }
+
+    fun serialize(): String {
+        var json: JSONObject = JSONObject()
+        json.put("globalNextID", globalNextID)
+
+        var alarmsJ = JSONArray()
+        alarms.forEach() {
+            val obj = it.serialize()
+            //Log.d("TAG", "saving ${obj.toString(4)}")
+            alarmsJ.put(it.serialize())
+        }
+        json.put("alarms", alarmsJ)
+
+        return json.toString(4)
+    }
+
+    fun remove(alarm: SmartAlarmAlarm) {
+
+        alarm.alarmEvents.forEach() { (id, alarmItem) ->
+            scheduler.cancel(alarmItem)
+        }
+        alarm.alarmEvents.clear()
+
+        alarms.remove(alarm)
+
     }
 }

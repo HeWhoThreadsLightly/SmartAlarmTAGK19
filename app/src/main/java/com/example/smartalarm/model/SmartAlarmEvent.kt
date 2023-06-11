@@ -177,8 +177,15 @@ class SmartAlarmParsedEvent(
 
     fun updateFilters(filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter>): SmartAlarmFilterMatch {
         filterResults.clear()
+        Log.d("TAG", "Filtering: ${event.eventData[SmartAlarmFilterType.Title]} ")
         filters.values.forEach() {
-            filterResults[it.filterType] = it.filter(event)
+            val res = it.filter(event)
+            filterResults[it.filterType] = res
+            Log.d(
+                "TAG",
+                "FilteringStep: ${it.filterType} data: ${event.eventData[it.filterType]} result: ${res.name}"
+            )
+
         }
 
         if (filterResults.containsValue(SmartAlarmFilterMatch.Fails)) {
@@ -186,6 +193,8 @@ class SmartAlarmParsedEvent(
         } else {
             matchesAll = SmartAlarmFilterMatch.Matches
         }
+        Log.d("TAG", "Filtering result: ${matchesAll.name}")
+
         return matchesAll
     }
 }

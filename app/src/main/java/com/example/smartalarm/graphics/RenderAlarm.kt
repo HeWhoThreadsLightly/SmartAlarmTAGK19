@@ -19,16 +19,15 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.smartalarm.model.SmartAlarmAlarm
-import com.example.smartalarm.model.SmartAlarmModel
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 import androidx.compose.ui.Alignment.Vertical
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import com.example.smartalarm.model.SmartAlarmStartType
+import com.example.smartalarm.model.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,8 +70,8 @@ fun renderStartWhen(alarm: SmartAlarmAlarm) {
         modifier = Modifier.fillMaxWidth(),
         onValueChange = {
             textStart = it
-            alarm.startMinutes = it.toString()
-                .toLong() // TODO if selectedOption == SmartAlarmStartType.At interprit the value as a time of day like 13:45 in to minutes from midnight
+            alarm.startMinutes = it.text.toIntOrNull()
+                ?: 0 // TODO if selectedOption == SmartAlarmStartType.At interprit the value as a time of day like 13:45 in to minutes from midnight
         })
     when (selectedOption) {
         SmartAlarmStartType.Before -> Text("Minutes before the event")
@@ -94,10 +93,19 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
         data.value = data.value.toMutableList().apply {
             Log.d(
                 "TAG",
+                "renderAlarm: moved from ${from.index} to ${to.index}"
+            )
+
+            if (to.index - 1 >= data.value.size) {
+                return@apply
+            }
+            Log.d(
+                "TAG",
                 "renderAlarm: moved from ${this[from.index - 1]} at ${from.index - 1} to ${this[to.index - 1]} at ${to.index - 1}"
             )
             add(to.index - 1, removeAt(from.index - 1))//Note library indexes by 1
         }
+        alarm.actions.add(to.index - 1, alarm.actions.removeAt(from.index - 1))
     })
 
     Surface(
@@ -117,6 +125,20 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surface, RectangleShape)
                 ) {
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Red
+                        ),
+                        onClick = {
+                            model.remove(alarm)
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Text("Delete")
+                    }
                     Text(text = "Alarm name")
                     TextField(value = textName, modifier = Modifier.fillMaxSize(), onValueChange = {
                         textName = it
@@ -146,12 +168,36 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .fillMaxWidth()
                             .padding(8.dp),
                         onClick = {
-                            // TODO: Handle button click, add alarm action
-                            // TODO: Create a popup with a bunch of buttons to add each type of event
+                            alarm.actions.add(ActionDelay(alarm, 10))
+                            navController.popBackStack()
+                            navController.navigate("ViewOne/${id}")
                         }
                     ) {
-                        Text("Add Alarm Action")
+                        Text("Add delay")
                     }
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        onClick = {
+                            alarm.actions.add(SetVolume(alarm, 10))
+                            alarm.invalidate()
+                        }
+                    ) {
+                        Text("Add set volume")
+                    }
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        onClick = {
+                            alarm.actions.add(ActionPlayYoutube(alarm, "dQw4w9WgXcQ"))
+                            alarm.invalidate()
+                        }
+                    ) {
+                        Text("Add youtube")
+                    }
+
                     Button(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -177,6 +223,9 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                     }
                 }
             }
+            item("Footer") {
+                Box(modifier = Modifier.height(200.dp))
+            }
         }
     }
 }
@@ -201,7 +250,6 @@ fun renderAlarmItem(navController: NavHostController, item: SmartAlarmAlarm) {
                 .fillMaxSize(), // Specify the size of the button
             onClick = {
                 navController.navigate("ViewOne/${item.id}")
-                //TODO open alarm in new context
             }) {
             Text("Edit")
         }
