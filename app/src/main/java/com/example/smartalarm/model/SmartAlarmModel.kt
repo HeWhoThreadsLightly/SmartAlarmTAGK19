@@ -232,6 +232,7 @@ class SmartAlarmModel(
     var scheduler: SmartAlarmAndroidAlarmScheduler =
         SmartAlarmAndroidAlarmScheduler(context, alarmManager)
     var receiver: AlarmReceiver = AlarmReceiver()
+    lateinit var refreshAction : AlarmItem
     lateinit var navController: NavHostController
     var requestPermissionLauncher = context.registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -288,7 +289,20 @@ class SmartAlarmModel(
         }
     }
 
+    fun startAutoUpdateCalendar(){
+        Log.d("TAG", "Calendar auto refresh started")
+        refreshAction = AlarmItem(System.currentTimeMillis() + 15 * 60 * 60 * 1000, "Calendar auto refresh", -1, 0)
+        scheduler.scehdule(refreshAction)
+        update()
+    }
+
     fun receiveMessage(message: String, alarmID: Int, eventID: Int) {
+        if(alarmID == -1){
+            refreshAction = AlarmItem(System.currentTimeMillis() + 15 * 60 * 60 * 1000, "Calendar auto refresh", -1, 0)
+            scheduler.scehdule(refreshAction)
+            update()
+            return
+        }
         alarms.forEach() {
             if (it.id == alarmID) {
                 it.triggerEvent(eventID)
