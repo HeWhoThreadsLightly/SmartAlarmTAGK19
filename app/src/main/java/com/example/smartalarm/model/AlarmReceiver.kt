@@ -12,12 +12,10 @@ class AlarmReceiver() : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
-        val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
-        val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
-        val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
+        val message = intent.getStringExtra("EXTRA_MESSAGE") ?: return
+        val alarmID = intent.getIntExtra("EXTRA_ALARM_ID", 0)
+        val eventID = intent.getIntExtra("EXTRA_EVENT_ID", 0)
         Log.d("TAG", "Alarm Triggered: $message $alarmID $eventID")
-        if (context == null) return
-        if (intent == null) return
         /*
         val startIntent =
             context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
@@ -30,7 +28,7 @@ class AlarmReceiver() : BroadcastReceiver() {
         startIntent.putExtra("Extra_EventID", eventID)
         context.startActivity(startIntent)
         // */
-        var extras : Bundle? = intent.extras ?: return;
+        intent.extras ?: return;
         val alarmBroadcastIntent : Intent = Intent("broadCastName");
 
         alarmBroadcastIntent.putExtra("EXTRA_MESSAGE", message)
