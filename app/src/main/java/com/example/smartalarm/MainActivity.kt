@@ -104,17 +104,17 @@ class MainActivity : ComponentActivity() {
     var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
 
-            val message = intent?.getStringExtra("Extra_Message") ?: return
-            val alarmID = intent?.getIntExtra("Extra_AlarmID", 0) ?: return
-            val eventID = intent?.getIntExtra("Extra_EventID", 0) ?: return
+            val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
+            val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
+            val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
             Log.d("TAG", "Intent2 received: $message $alarmID $eventID")
             model.receiveMessage(message, alarmID, eventID)
         }
     }
     fun takeInitialIntent() {
-        val message = intent?.getStringExtra("Extra_Message") ?: return
-        val alarmID = intent?.getIntExtra("Extra_AlarmID", 0) ?: return
-        val eventID = intent?.getIntExtra("Extra_EventID", 0) ?: return
+        val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
+        val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
+        val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
         Log.d("TAG", "Intent1 received: $message $alarmID $eventID")
         model.receiveMessage(message, alarmID, eventID)
     }

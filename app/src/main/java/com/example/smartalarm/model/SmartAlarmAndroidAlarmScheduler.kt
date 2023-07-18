@@ -16,9 +16,9 @@ class SmartAlarmAndroidAlarmScheduler(
     override fun scehdule(item: AlarmItem) {
         //val c = android.content.Context.ALARM_SERVICE
         val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra("Extra_Message", item.message)
-            putExtra("Extra_AlarmID", item.alarmID)
-            putExtra("Extra_EventID", item.eventID)
+            putExtra("EXTRA_MESSAGE", item.message)
+            putExtra("EXTRA_ALARM_ID", item.alarmID)
+            putExtra("EXTRA_EVENT_ID", item.eventID)
             // V. I think this should call SmartAlarmAction.begin() here.
         }
 
