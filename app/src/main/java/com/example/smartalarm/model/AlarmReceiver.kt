@@ -31,11 +31,11 @@ class AlarmReceiver() : BroadcastReceiver() {
         context.startActivity(startIntent)
         // */
         var extras : Bundle? = intent.extras ?: return;
-        var i : Intent = Intent("broadCastName");
+        val alarmBroadcastIntent : Intent = Intent("broadCastName");
 
-        i.putExtra("EXTRA_MESSAGE", message)
-        i.putExtra("EXTRA_ALARM_ID", alarmID)
-        i.putExtra("EXTRA_EVENT_ID", eventID)
-        context.sendBroadcast(i)
+        alarmBroadcastIntent.putExtra("EXTRA_MESSAGE", message)
+        alarmBroadcastIntent.putExtra("EXTRA_ALARM_ID", alarmID)
+        alarmBroadcastIntent.putExtra("EXTRA_EVENT_ID", eventID)
+        context.sendBroadcast(alarmBroadcastIntent)
     }
 }
