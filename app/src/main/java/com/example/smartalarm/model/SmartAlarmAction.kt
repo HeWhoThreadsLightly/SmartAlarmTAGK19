@@ -26,6 +26,9 @@ import androidx.compose.ui.unit.dp
 import org.json.JSONObject
 import kotlin.math.roundToInt
 import android.media.MediaPlayer
+import android.media.Ringtone
+import android.media.RingtoneManager
+
 
 
 fun SmartAlarmAction(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmAction {
@@ -50,7 +53,7 @@ fun SmartAlarmAction(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmAction
     }
 }
 
-open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpelName: String) {
+open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpleName: String) {
     val id: Int = SmartAlarmActionGlobalNexID++
     open fun begin() {
         Log.d("TAG", "Base start smart alarm action called")
@@ -74,7 +77,7 @@ open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpelName: String) 
                 .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                 .padding(8.dp)
         ) {
-            Text(simpelName)
+            Text(simpleName)
 
             Row() {
                 Button(
@@ -146,7 +149,12 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
             try {
                 ContextCompat.startActivity(alarm.model.context, webIntent, null)
             } catch (ex: ActivityNotFoundException) {
-                Log.d("TAG", "Failed to start YouTube video")
+                Log.d("TAG", "Failed to start YouTube video, playing default alarm sound")
+
+                // Play the default notification sound (standard Android alarm sound)
+                val notification: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
+                val ringtone: Ringtone = RingtoneManager.getRingtone(alarm.model.context, notification)
+                ringtone.play()
             }
         }
     }
@@ -171,7 +179,7 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
                 //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = simpelName,
+                    text = simpleName,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                 )
                 var textVideo by remember { mutableStateOf(TextFieldValue(videoId)) }
@@ -258,7 +266,7 @@ class ActionDelay(alarm: SmartAlarmAlarm, var delaySeconds: Long) :
                 //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = simpelName,
+                    text = simpleName,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                 )
                 var textSeconds by remember { mutableStateOf(TextFieldValue(delaySeconds.toString())) }
@@ -317,7 +325,7 @@ class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
         var json = JSONObject()
         json.put("type", "SetVolume")
         json.put("volume", volume)
-        json.put("simpelName", simpelName)
+        json.put("simpleName", simpleName)
         return json
     }
 
@@ -347,7 +355,7 @@ class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
                 //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = simpelName,
+                    text = simpleName,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp)
                 )
                 var textVolume by remember { mutableStateOf(TextFieldValue(volume.toString())) }
