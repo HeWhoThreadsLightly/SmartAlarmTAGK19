@@ -97,7 +97,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
                         globalNextID++
                     )
                     alarmEvents[alarmItem.eventID] = alarmItem
-                    model.scheduler.scehdule(alarmItem)
+                    model.scheduler.schedule(alarmItem)
                 }
             }
         }
@@ -118,7 +118,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
                     )
                     alarmItem.step = i + 1
                     alarmEvents[alarmItem.eventID] = alarmItem
-                    model.scheduler.scehdule(alarmItem)
+                    model.scheduler.schedule(alarmItem)
                     return
                 }
             } else {
@@ -292,14 +292,14 @@ class SmartAlarmModel(
     fun startAutoUpdateCalendar(){
         Log.d("TAG", "Calendar auto refresh started")
         refreshAction = AlarmItem(System.currentTimeMillis() + 15 * 60 * 60 * 1000, "Calendar auto refresh", -1, 0)
-        scheduler.scehdule(refreshAction)
+        scheduler.schedule(refreshAction)
         update()
     }
 
     fun receiveMessage(message: String, alarmID: Int, eventID: Int) {
         if(alarmID == -1){
             refreshAction = AlarmItem(System.currentTimeMillis() + 15 * 60 * 60 * 1000, "Calendar auto refresh", -1, 0)
-            scheduler.scehdule(refreshAction)
+            scheduler.schedule(refreshAction)
             update()
             return
         }

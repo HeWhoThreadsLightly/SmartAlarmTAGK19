@@ -9,11 +9,11 @@ import android.content.Intent
 class SmartAlarmAndroidAlarmScheduler(
     private val context: Context,
     private val alarmManager: AlarmManager
-) : AlarmScheduler {
+)  {
 
     //private val alarmManager = context.getSystemService(AlarmManager::class.java)//TODO caches here
 
-    override fun scehdule(item: AlarmItem) {
+    fun schedule(item: AlarmItem) {
         //val c = android.content.Context.ALARM_SERVICE
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("EXTRA_MESSAGE", item.message)
@@ -36,7 +36,7 @@ class SmartAlarmAndroidAlarmScheduler(
         )
     }
 
-    override fun cancel(item: AlarmItem) {
+     fun cancel(item: AlarmItem) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
