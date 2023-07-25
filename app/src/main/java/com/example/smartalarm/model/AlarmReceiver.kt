@@ -6,9 +6,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import com.example.smartalarm.InitModel
+import com.example.smartalarm.MainActivity
 
 class AlarmReceiver() : BroadcastReceiver() {
-    //var model: SmartAlarmModel = null //TODO get SmartAlarms model i here
 
     override fun onReceive(context: Context, intent: Intent) {
 
@@ -16,24 +16,17 @@ class AlarmReceiver() : BroadcastReceiver() {
         val alarmID = intent.getIntExtra("EXTRA_ALARM_ID", 0)
         val eventID = intent.getIntExtra("EXTRA_EVENT_ID", 0)
         Log.d("TAG", "Alarm Triggered: $message $alarmID $eventID")
-        /*
-        val startIntent =
-            context.packageManager.getLaunchIntentForPackage(context.packageName) ?: return
 
-        startIntent.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-           // Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED
-
-        startIntent.putExtra("EXTRA_MESSAGE", message)
-        startIntent.putExtra("Extra_AlarmID", alarmID)
-        startIntent.putExtra("Extra_EventID", eventID)
-        context.startActivity(startIntent)
-        // */
-        intent.extras ?: return;
-        val alarmBroadcastIntent : Intent = Intent("broadCastName");
-
-        alarmBroadcastIntent.putExtra("EXTRA_MESSAGE", message)
-        alarmBroadcastIntent.putExtra("EXTRA_ALARM_ID", alarmID)
-        alarmBroadcastIntent.putExtra("EXTRA_EVENT_ID", eventID)
-        context.sendBroadcast(alarmBroadcastIntent)
+        if (context != null) {
+            // Handle the received data here instead of re-broadcasting it
+            // (e.g., start a specific activity, update UI, or trigger some action).
+            // Example: Start a specific activity with the received data
+            val startIntent = Intent(context, MainActivity::class.java)
+            startIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startIntent.putExtra("EXTRA_MESSAGE", message)
+            startIntent.putExtra("EXTRA_ALARM_ID", alarmID)
+            startIntent.putExtra("EXTRA_EVENT_ID", eventID)
+            context.startActivity(startIntent)
+        }
     }
 }
