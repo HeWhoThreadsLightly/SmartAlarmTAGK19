@@ -296,7 +296,7 @@ class SmartAlarmModel(
         update()
     }
 
-    fun receiveMessage(message: String, alarmID: Int, eventID: Int) {
+    fun handleReceivedMessage(message: String, alarmID: Int, eventID: Int) {
         if(alarmID == -1){
             refreshAction = AlarmItem(System.currentTimeMillis() + 15 * 60 * 60 * 1000, "Calendar auto refresh", -1, 0)
             scheduler.schedule(refreshAction)

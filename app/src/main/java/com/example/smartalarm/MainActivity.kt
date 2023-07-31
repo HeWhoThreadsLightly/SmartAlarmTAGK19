@@ -108,7 +108,7 @@ class MainActivity : ComponentActivity() {
             val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
             val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
             Log.d("TAG", "Intent2 received: $message $alarmID $eventID")
-            model.receiveMessage(message, alarmID, eventID)
+            model.handleReceivedMessage(message, alarmID, eventID)
         }
     }
     fun takeInitialIntent() {
@@ -116,7 +116,7 @@ class MainActivity : ComponentActivity() {
         val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
         val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
         Log.d("TAG", "Intent1 received: $message $alarmID $eventID")
-        model.receiveMessage(message, alarmID, eventID)
+        model.handleReceivedMessage(message, alarmID, eventID)
     }
 
     override fun onPause() {
