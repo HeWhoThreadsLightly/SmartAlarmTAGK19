@@ -84,18 +84,18 @@ class MainActivity : ComponentActivity() {
         model.navController = navController
         NavHost(
             navController = navController,
-            startDestination = "viewAll"
+            startDestination = "view_all"
         ) {
-            composable("viewAll") {
+            composable("view_all") {
                 renderMain(navController, model)
             }
 
-            composable("ViewOne/{id}") {
+            composable("view_one/{id}") {
                 val id = it.arguments!!.getString("id")!!.toInt()
                 renderAlarm(navController, model, id)
             }
 
-            composable("ViewOneFilters/{id}") {
+            composable("view_one_filters/{id}") {
                 val id = it.arguments!!.getString("id")!!.toInt()
                 renderAlarmFilters(navController, model, id)
             }

@@ -79,7 +79,7 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel) {
                             onClick = {
                                 val newID = globalNextID++
                                 model.alarms.add(SmartAlarmAlarm(model, newID, "New alarm"))
-                                navController.navigate("ViewOne/${newID}")
+                                navController.navigate("view_one/${newID}")
 
                             }) {
                             Text("New Alarm")

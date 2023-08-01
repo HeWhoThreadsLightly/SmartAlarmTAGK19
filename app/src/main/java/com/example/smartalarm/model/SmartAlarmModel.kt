@@ -164,7 +164,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
 
     fun invalidate() {
         model.navController.popBackStack()
-        model.navController.navigate("ViewOne/${id}")
+        model.navController.navigate("view_one/${id}")
     }
 
     fun serialize(): JSONObject {

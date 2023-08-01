@@ -155,7 +155,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .padding(8.dp),
                         onClick = {
                             // Handle button click, show a tabel of passing and failing filters on events from calander
-                            navController.navigate("ViewOneFilters/${id}")
+                            navController.navigate("view_one_filters/${id}")
                         }
                     ) {
                         Text("View filter results")
@@ -170,7 +170,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                         onClick = {
                             alarm.actions.add(ActionDelay(alarm, 10))
                             navController.popBackStack()
-                            navController.navigate("ViewOne/${id}")
+                            navController.navigate("view_one/${id}")
                         }
                     ) {
                         Text("Add delay")
@@ -249,7 +249,7 @@ fun renderAlarmItem(navController: NavHostController, item: SmartAlarmAlarm) {
                 .padding(start = 20.dp) // Add padding to the button
                 .fillMaxSize(), // Specify the size of the button
             onClick = {
-                navController.navigate("ViewOne/${item.id}")
+                navController.navigate("view_one/${item.id}")
             }) {
             Text("Edit")
         }
