@@ -88,15 +88,15 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
         return
     }
     var textName by remember { mutableStateOf(TextFieldValue(alarm.name)) }
-    val data = remember { mutableStateOf(alarm.actions) }
+    val alarmActionsState = remember { mutableStateOf(alarm.actions) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
-        data.value = data.value.toMutableList().apply {
+        alarmActionsState.value = alarmActionsState.value.toMutableList().apply {
             Log.d(
                 "TAG",
                 "renderAlarm: moved from ${from.index} to ${to.index}"
             )
 
-            if (to.index - 1 >= data.value.size) {
+            if (to.index - 1 >= alarmActionsState.value.size) {
                 return@apply
             }
             Log.d(
@@ -210,7 +210,7 @@ fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                     }
                 }
             }
-            items(data.value, { it.id }) { item ->
+            items(alarmActionsState.value, { it.id }) { item ->
                 ReorderableItem(state, key = item) { isDragging ->
                     val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                     Column(
