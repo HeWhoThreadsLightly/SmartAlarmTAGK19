@@ -43,7 +43,7 @@ fun SmartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
 
     var alarmsJ = json.getJSONArray("alarms")
     for (i in 0 until alarmsJ.length()) {
-        var alarmItem = AlarmItem(alarmsJ.getJSONObject(i))
+        var alarmItem = getAlarmItemFromJsonObject(alarmsJ.getJSONObject(i))
         alarm.alarmEvents[alarmItem.eventID] = alarmItem
     }
 

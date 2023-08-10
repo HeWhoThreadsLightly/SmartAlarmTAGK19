@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import org.json.JSONObject
 
-fun AlarmItem(json: JSONObject): AlarmItem {
+fun getAlarmItemFromJsonObject(json: JSONObject): AlarmItem {
     var alarm = AlarmItem(
         json.getLong("timeEpochMilli"),
         json.getString("message"),
