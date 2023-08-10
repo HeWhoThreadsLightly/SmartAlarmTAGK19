@@ -1,11 +1,10 @@
 package com.example.smartalarm.model
 
-import android.os.Bundle
-import android.util.Log
+
 import org.json.JSONObject
 
 fun getAlarmItemFromJsonObject(json: JSONObject): AlarmItem {
-    var alarm = AlarmItem(
+    val alarm = AlarmItem(
         json.getLong("timeEpochMilli"),
         json.getString("message"),
         json.getInt("alarmID"),
@@ -22,13 +21,12 @@ data class AlarmItem(
     val eventID: Int,
 ) {
     fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("timeEpochMilli", timeEpochMilli)
         json.put("message", message)
         json.put("alarmID", alarmID)
         json.put("eventID", eventID)
         json.put("step", step)
-        //Log.d("TAG, ","Saving alarmItem ${json.toString(4)}")
         return json
     }
 
