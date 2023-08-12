@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.smartalarm.graphics.renderAlarm
 import com.example.smartalarm.graphics.renderAlarmFilters
 import com.example.smartalarm.graphics.renderMain
+import com.example.smartalarm.model.Constants
 import com.example.smartalarm.model.SmartAlarmModel
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
 
@@ -24,7 +25,7 @@ fun InitModel(context: MainActivity, alarmManager: AlarmManager): SmartAlarmMode
 
         Log.d("TAG", "Loading settings")
         var prefs: SharedPreferences? =
-            context.getSharedPreferences("smartAlarm", ComponentActivity.MODE_PRIVATE)
+            context.getSharedPreferences(Constants.SHARED_PREF_KEY, ComponentActivity.MODE_PRIVATE)
         var jsonStr = prefs?.getString("json", null)
 
         if (jsonStr != null) {
@@ -125,7 +126,7 @@ class MainActivity : ComponentActivity() {
 
         //Log.d("TAG", "Saving : $JSONstr")
         val prefs: SharedPreferences =
-            getSharedPreferences("smartAlarm", ComponentActivity.MODE_PRIVATE)
+            getSharedPreferences(Constants.SHARED_PREF_KEY, ComponentActivity.MODE_PRIVATE)
 
         val editPrefs: SharedPreferences.Editor = prefs.edit()
         editPrefs.putString("json", JSONstr)
