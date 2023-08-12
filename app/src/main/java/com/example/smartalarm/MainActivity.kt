@@ -62,7 +62,7 @@ class MainActivity : ComponentActivity() {
         model = InitModel(this, alarmManager)
         setContent {
             model.navController = rememberNavController()
-            takeInitialIntent()
+            handleInitialIntent()
             registerReceiver(broadcastReceiver,  IntentFilter("broadCastName"));
             // Register the permissions callback, which handles the user's response to the
             // system permissions dialog. Save the return value, an instance of
@@ -111,7 +111,7 @@ class MainActivity : ComponentActivity() {
             model.handleReceivedMessage(message, alarmID, eventID)
         }
     }
-    fun takeInitialIntent() {
+    fun handleInitialIntent() {
         val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
         val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
         val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
