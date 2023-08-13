@@ -17,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import com.example.smartalarm.model.SmartAlarmFilterMatch
 import com.example.smartalarm.model.SmartAlarmModel
 
@@ -70,24 +69,23 @@ fun Table(
 }
 
 @Composable
-fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel, id: Int) {
-    var alarm = model.alarms.find { it.id == id }
+fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
+    val alarm = model.alarms.find { it.id == id }
     if (alarm == null) {
         Text("Id $id not found", modifier = Modifier.background(MaterialTheme.colorScheme.error))
         return
     }
-    var activeFilters = alarm.activeFilters()
+    val activeFilters = alarm.activeFilters()
 
     @Composable
     fun calculateBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.surfaceVariant
         }
-        var event = alarm.parsedEvents[rowIndex - 2]
-        var filterType = activeFilters[columnIndex].filterType
-        var match = event.filterResults[filterType]
+        val event = alarm.parsedEvents[rowIndex - 2]
+        val filterType = activeFilters[columnIndex].filterType
 
-        return when (match) {
+        return when (event.filterResults[filterType]) {
             SmartAlarmFilterMatch.Unknown -> MaterialTheme.colorScheme.surfaceVariant
             SmartAlarmFilterMatch.Matches -> Color.Green
             SmartAlarmFilterMatch.Fails -> Color.Red
@@ -100,11 +98,10 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.onSurface
         }
-        var event = alarm.parsedEvents[rowIndex - 2]
-        var filterType = activeFilters[columnIndex].filterType
-        var match = event.filterResults[filterType]
+        val event = alarm.parsedEvents[rowIndex - 2]
+        val filterType = activeFilters[columnIndex].filterType
 
-        return when (match) {
+        return when (event.filterResults[filterType]) {
             SmartAlarmFilterMatch.Unknown -> MaterialTheme.colorScheme.onSurface
             SmartAlarmFilterMatch.Matches -> Color.Black
             SmartAlarmFilterMatch.Fails -> Color.White
@@ -114,15 +111,19 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
 
     fun calculateCellText(columnIndex: Int, rowIndex: Int): String {
 
-        var filter = activeFilters[columnIndex]
+        val filter = activeFilters[columnIndex]
 
-        return if (rowIndex == 0) {
-            filter.filterType.name
-        } else if (rowIndex == 1) {
-            filter.filter
-        } else {
-            var event = alarm.parsedEvents[rowIndex - 2]
-            event.event.eventData[filter.filterType] ?: "NULL"
+        return when (rowIndex) {
+            0 -> {
+                filter.filterType.name
+            }
+            1 -> {
+                filter.filter
+            }
+            else -> {
+                val event = alarm.parsedEvents[rowIndex - 2]
+                event.event.eventData[filter.filterType] ?: "NULL"
+            }
         }
     }
 
@@ -130,11 +131,11 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
-        Column() {
-            Row() {
+        Column {
+            Row {
                 Text(alarm.name + " filter matches")
             }
-            Row() {
+            Row {
 
                 Box(
                     modifier = Modifier.fillMaxSize()

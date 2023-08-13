@@ -144,7 +144,7 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                     RenderStartWhen(alarm)
                     Text(text = "Filters")
                     alarm.filters.values.forEach {
-                        renderFilter(filter = it)
+                        RenderFilter(filter = it)
                     }
                     Button(
                         modifier = Modifier
