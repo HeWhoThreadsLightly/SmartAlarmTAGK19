@@ -11,8 +11,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+<<<<<<< HEAD
 import com.example.smartalarm.graphics.RenderAlarm
 import com.example.smartalarm.graphics.RenderAlarmFilters
+=======
+import com.example.smartalarm.graphics.renderAlarm
+import com.example.smartalarm.graphics.renderAlarmFilters
+>>>>>>> parent of 7c714ec (Kotlin hints fix)
 import com.example.smartalarm.graphics.renderMain
 import com.example.smartalarm.model.Constants
 import com.example.smartalarm.model.SmartAlarmModel
@@ -93,7 +98,7 @@ class MainActivity : ComponentActivity() {
 
             composable("view_one/{id}") {
                 val id = it.arguments!!.getString("id")!!.toInt()
-                RenderAlarm(navController, model, id)
+                renderAlarm(navController, model, id)
             }
 
             composable("view_one_filters/{id}") {
