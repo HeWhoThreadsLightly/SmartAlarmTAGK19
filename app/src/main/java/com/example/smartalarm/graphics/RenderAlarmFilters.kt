@@ -79,7 +79,7 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
     var activeFilters = alarm.activeFilters()
 
     @Composable
-    fun decidedBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
+    fun calculateBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.surfaceVariant
         }
@@ -96,7 +96,7 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
     }
 
     @Composable
-    fun decidedTextColor(columnIndex: Int, rowIndex: Int): Color {
+    fun calculateTextColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.onSurface
         }
@@ -112,7 +112,7 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
         }
     }
 
-    fun decidedText(columnIndex: Int, rowIndex: Int): String {
+    fun calculateCellText(columnIndex: Int, rowIndex: Int): String {
 
         var filter = activeFilters[columnIndex]
 
@@ -147,15 +147,15 @@ fun renderAlarmFilters(navController: NavHostController, model: SmartAlarmModel,
                             Row(
                                 modifier = Modifier
                                     .background(
-                                        decidedBackgroundColor(columnIndex, rowIndex),
+                                        calculateBackgroundColor(columnIndex, rowIndex),
                                         RoundedCornerShape(4.dp)
                                     )
                                     .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                                     .padding(8.dp)
                             ) {
                                 Text(
-                                    text = decidedText(columnIndex, rowIndex),
-                                    color = decidedTextColor(columnIndex, rowIndex)
+                                    text = calculateCellText(columnIndex, rowIndex),
+                                    color = calculateTextColor(columnIndex, rowIndex)
                                 )
                             }
 

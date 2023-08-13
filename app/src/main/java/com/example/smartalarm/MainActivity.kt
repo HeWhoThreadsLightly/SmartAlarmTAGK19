@@ -44,7 +44,6 @@ fun InitModel(context: MainActivity, alarmManager: AlarmManager): SmartAlarmMode
 
         Log.d("TAG", "Error loading settings")
         throw err
-        return SmartAlarmModel(context, alarmManager)
     }
 }
 
@@ -59,7 +58,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         alarmManager =
-            getSystemService(android.content.Context.ALARM_SERVICE) as AlarmManager//TODO caches here
+            getSystemService(android.content.Context.ALARM_SERVICE) as AlarmManager
         model = InitModel(this, alarmManager)
         setContent {
             model.navController = rememberNavController()
