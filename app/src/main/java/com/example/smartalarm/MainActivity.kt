@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.smartalarm.graphics.RenderAlarm
+import com.example.smartalarm.graphics.renderAlarm
 import com.example.smartalarm.graphics.renderAlarmFilters
 import com.example.smartalarm.graphics.renderMain
 import com.example.smartalarm.model.Constants
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
 
             composable("view_one/{id}") {
                 val id = it.arguments!!.getString("id")!!.toInt()
-                RenderAlarm(navController, model, id)
+                renderAlarm(navController, model, id)
             }
 
             composable("view_one_filters/{id}") {
