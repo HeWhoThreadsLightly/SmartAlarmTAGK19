@@ -5,8 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.media.AudioManager
 import android.net.Uri
-import android.os.SystemClock
-import android.util.Half.toFloat
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -20,12 +18,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.json.JSONObject
 import kotlin.math.roundToInt
-import android.media.MediaPlayer
 import android.media.Ringtone
 import android.media.RingtoneManager
 
@@ -65,7 +61,7 @@ open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpleName: String) 
     }
 
     @Composable
-    open fun renderAction() {
+    open fun RenderAction() {
         Log.d("TAG", "Base render smart alarm action called")
 
         Column(
@@ -79,7 +75,7 @@ open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpleName: String) 
         ) {
             Text(simpleName)
 
-            Row() {
+            Row {
                 Button(
                     onClick = {
                         alarm.actions.remove(this@SmartAlarmAction)
@@ -110,7 +106,7 @@ open class SmartAlarmAction(var alarm: SmartAlarmAlarm, var simpleName: String) 
     }
 
     open fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("type", "SmartAlarmAction")
         return json
     }
@@ -131,7 +127,7 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
     }
 
     override fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("type", "ActionPlayYoutube")
         json.put("videoId", videoId)
         return json
@@ -164,7 +160,7 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
     }
 
     @Composable
-    override fun renderAction() {
+    override fun RenderAction() {
         Box(
             modifier = Modifier
                 .background(
@@ -195,7 +191,7 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
                 )
                 Spacer(modifier = Modifier.width(8.dp)) // Add a spacer for spacing between TextField and Button
 
-                Row() {
+                Row {
                     Button(
                         onClick = {
                             alarm.actions.remove(this@ActionPlayYoutube)
@@ -240,7 +236,7 @@ class ActionDelay(alarm: SmartAlarmAlarm, var delaySeconds: Long) :
     }
 
     override fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("type", "ActionDelay")
         json.put("delaySeconds", delaySeconds)
         return json
@@ -251,7 +247,7 @@ class ActionDelay(alarm: SmartAlarmAlarm, var delaySeconds: Long) :
     }
 
     @Composable
-    override fun renderAction() {
+    override fun RenderAction() {
         Box(
             modifier = Modifier
                 .background(
@@ -281,7 +277,7 @@ class ActionDelay(alarm: SmartAlarmAlarm, var delaySeconds: Long) :
                     colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colorScheme.onSurface)
                 )
 
-                Row() {
+                Row {
                     Button(
                         onClick = {
                             alarm.actions.remove(this@ActionDelay)
@@ -322,7 +318,7 @@ class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
     }
 
     override fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("type", "SetVolume")
         json.put("volume", volume)
         json.put("simpleName", simpleName)
@@ -340,7 +336,7 @@ class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
     }
 
     @Composable
-    override fun renderAction() {
+    override fun RenderAction() {
         Box(
             modifier = Modifier
                 .background(
@@ -369,7 +365,7 @@ class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
                         .padding(start = 8.dp), // Add padding to the button
                     colors = TextFieldDefaults.textFieldColors(textColor = MaterialTheme.colorScheme.onSurface)
                 )
-                Row() {
+                Row {
                     Button(
                         onClick = {
                             alarm.actions.remove(this@SetVolume)
