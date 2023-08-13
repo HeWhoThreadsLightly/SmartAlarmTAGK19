@@ -96,7 +96,7 @@ fun renderMain(navController: NavHostController, model: SmartAlarmModel) {
                             .shadow(elevation.value)
                             .background(MaterialTheme.colorScheme.surface)
                     ) {
-                        renderAlarmItem(navController, item)
+                        RenderAlarmItem(navController, item)
                     }
                 }
             }
