@@ -1,6 +1,5 @@
 package com.example.smartalarm.model
 
-import android.util.Log
 import org.json.JSONObject
 
 enum class SmartAlarmFilterType {
@@ -30,15 +29,14 @@ enum class SmartAlarmFilterMatch {
 }
 
 fun SmartAlarmFilter(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmFilter {
-    var filter = SmartAlarmFilter(alarm, SmartAlarmFilterType.valueOf(json.getString("filterType")))
+    val filter = SmartAlarmFilter(alarm, SmartAlarmFilterType.valueOf(json.getString("filterType")))
     filter.active = json.getBoolean("active")
     filter.filter = json.getString("filter")
 
     return filter
 }
 
-class SmartAlarmFilter(alarm: SmartAlarmAlarm, type: SmartAlarmFilterType) {
-    val alarm: SmartAlarmAlarm = alarm
+class SmartAlarmFilter(val alarm: SmartAlarmAlarm, type: SmartAlarmFilterType) {
     var filterType: SmartAlarmFilterType = type
     var active: Boolean = listOf(
         SmartAlarmFilterType.CalendarName,
@@ -65,15 +63,15 @@ class SmartAlarmFilter(alarm: SmartAlarmAlarm, type: SmartAlarmFilterType) {
         if (str == null) {
             str = ""
         }
-        if (str.matches(filterAsRegex)) {
-            return SmartAlarmFilterMatch.Matches
+        return if (str.matches(filterAsRegex)) {
+            SmartAlarmFilterMatch.Matches
         } else {
-            return SmartAlarmFilterMatch.Fails
+            SmartAlarmFilterMatch.Fails
         }
     }
 
     fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("filterType", filterType.name)
         json.put("active", active)
         json.put("filter", filter)
