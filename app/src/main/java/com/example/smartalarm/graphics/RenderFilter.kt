@@ -2,7 +2,6 @@ package com.example.smartalarm.graphics
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -15,7 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.example.smartalarm.model.SmartAlarmFilter
 
 @Composable
-fun renderFilter(filter: SmartAlarmFilter) {
+fun RenderFilter(filter: SmartAlarmFilter) {
     var textRegex by remember { mutableStateOf(TextFieldValue(filter.filter)) }
     var isActive by remember { mutableStateOf(filter.active) }
 
@@ -25,7 +24,7 @@ fun renderFilter(filter: SmartAlarmFilter) {
             .border(1.dp, Color.Black)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            Row() {
+            Row {
 
                 Text(
                     text = filter.filterType.name,
