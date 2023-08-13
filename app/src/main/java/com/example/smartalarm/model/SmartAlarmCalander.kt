@@ -181,7 +181,7 @@ class SmartAlarmCalendar(private val context: Context) {
             sortOrder
         )
 
-        // Iterate over the cursor to create new SmartAlarmCalendarEvent objects for each event.
+        // Iterate over the cursor to create new smartAlarmCalendarEvent objects for each event.
         Log.d("TAG", "Trying to use cursor")
         cursor?.use { cu ->
             Log.d("TAG", "Fetched calendar")
@@ -189,7 +189,7 @@ class SmartAlarmCalendar(private val context: Context) {
             while (cu.moveToNext()) {
                 Log.d("TAG", "Fetched Event $cu")
                 // Try to create a new calendar event object and set its properties.
-                val newEvent = SmartAlarmCalendarEvent(cu, calendarsNames)
+                val newEvent = smartAlarmCalendarEvent(cu, calendarsNames)
                 if (newEvent != null) {
                     Log.d("TAG", "Created new event with data {${newEvent.print()}}")
                     latestEvents.add(newEvent)

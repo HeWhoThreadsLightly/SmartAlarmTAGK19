@@ -1,40 +1,41 @@
 package com.example.smartalarm.model
 
+import android.annotation.SuppressLint
 import android.database.Cursor
 import android.icu.text.SimpleDateFormat
 import android.util.Log
 import java.util.*
 
 class SmartAlarmCalendarEvent(
-    startTime: Date,
-    endTime: Date,
-    eventData: EnumMap<SmartAlarmFilterType, String>
+    // = ICSdateFormat.parse("20230222T120000Z")
+    var startTime: Date,
+    // = ICSdateFormat.parse("20230222T120000Z")
+    var endTime: Date,
+    var eventData: EnumMap<SmartAlarmFilterType, String>
 ) {
-    var startTime: Date = startTime // = ICSdateFormat.parse("20230222T120000Z")
-    var endTime: Date = endTime // = ICSdateFormat.parse("20230222T120000Z")
-    var eventData: EnumMap<SmartAlarmFilterType, String> = eventData
 
     fun print(): String {
         var str = "EVent\n"
-        eventData.forEach() { (key, value) ->
+        eventData.forEach { (key, value) ->
             str += "\t{$key: $value},\n"
         }
-        return str;
+        return str
     }
 }
 
-fun SmartAlarmCalendarEvent(
+fun smartAlarmCalendarEvent(
     cursor: Cursor,
     calendarsNames: Map<Long, String>
 ): SmartAlarmCalendarEvent? {
     var startTime: Date? = null // ICSdateFormat.parse("20230222T120000Z")
     var endTime: Date? = null// = ICSdateFormat.parse("20230222T120000Z")
-    var eventData: EnumMap<SmartAlarmFilterType, String> =
+    val eventData: EnumMap<SmartAlarmFilterType, String> =
         EnumMap(SmartAlarmFilterType.values().associateWith { null })
 
+    @SuppressLint("SimpleDateFormat")
     fun getStringRep(type: SmartAlarmFilterType): String? {
-        var index = cursor.getColumnIndex(SmartAlarmCalendarFilterMap[type])
-        val displayDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm:ss eee 'V'ww")
+        val index = cursor.getColumnIndex(SmartAlarmCalendarFilterMap[type])
+        val displayDateFormat =  SimpleDateFormat("yyyy/MM/dd HH:mm:ss eee 'V'ww")
 
         if (index == -1) {
             return null
@@ -57,35 +58,33 @@ fun SmartAlarmCalendarEvent(
                 return displayDateFormat.format(endTime)
             }
             SmartAlarmFilterType.All_Day -> {
-                val allDay = cursor.getInt(index)
-                when (allDay) {
+                return when (val allDay = cursor.getInt(index)) {
                     0 -> {
-                        return "Not all day"
+                        "Not all day"
                     }
                     1 -> {
-                        return "All day"
+                        "All day"
                     }
                     else -> {
                         Log.d("TAG", "ALL_DAY boolean has non binary value $allDay")
-                        return null
+                        null
                     }
                 }
             }
             SmartAlarmFilterType.Availability -> {
-                val avalibility = cursor.getInt(index)
-                when (avalibility) {
+                return when (val availability = cursor.getInt(index)) {
                     0 -> {
-                        return "Busy"
+                        "Busy"
                     }
                     1 -> {
-                        return "Free"
+                        "Free"
                     }
                     2 -> {
-                        return "Tentative"
+                        "Tentative"
                     }
                     else -> {
-                        Log.d("TAG", "Unknown Availability type detected $avalibility")
-                        return null
+                        Log.d("TAG", "Unknown Availability type detected $availability")
+                        null
                     }
                 }
             }
@@ -96,7 +95,7 @@ fun SmartAlarmCalendarEvent(
     }
 
     SmartAlarmFilterType.values().forEach {
-        eventData.set(it, getStringRep(it))
+        eventData[it] = getStringRep(it)
     }
     if (startTime == null || endTime == null) {
         return null
@@ -109,7 +108,7 @@ fun SmartAlarmCalendarEvent(
         var seconds = diff / 1000
         var minutes = seconds / 60
         var hours = minutes / 60
-        var days = hours / 24
+        val days = hours / 24
         seconds %= 60
         minutes %= 60
         hours %= 24
@@ -139,27 +138,27 @@ fun SmartAlarmCalendarEvent(
 
 class SmartAlarmParsedEvent(
     alarm: SmartAlarmAlarm,
-    event: SmartAlarmCalendarEvent,
+    val event: SmartAlarmCalendarEvent,
     filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter>
 ) {
-    val event: SmartAlarmCalendarEvent = event
     val filterResults: EnumMap<SmartAlarmFilterType, SmartAlarmFilterMatch> =
         EnumMap(SmartAlarmFilterType.values().associateWith { null })
     var matchesAll: SmartAlarmFilterMatch = updateFilters(filters)
     var startTime: Date = parseStartDate(alarm)
+    @SuppressLint("SimpleDateFormat")
     private fun parseStartDate(alarm: SmartAlarmAlarm): Date {
         when (alarm.startType) {
             SmartAlarmStartType.Before -> {
-                var time = event.startTime.time - alarm.startMinutes * 60 * 1000
+                val time = event.startTime.time - alarm.startMinutes * 60 * 1000
                 return Date(time)
             }
             SmartAlarmStartType.After -> {
-                var time = event.startTime.time + alarm.startMinutes * 60 * 1000
+                val time = event.startTime.time + alarm.startMinutes * 60 * 1000
                 return Date(time)
             }
             SmartAlarmStartType.At -> {
-                val dayDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy/MM/dd")
-                val instantDateFormat: SimpleDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm")
+                val dayDateFormat = SimpleDateFormat("yyyy/MM/dd")
+                val instantDateFormat = SimpleDateFormat("yyyy/MM/dd HH:mm")
                 var newDate: String = dayDateFormat.format(event.startTime)
                 val hours = (alarm.startMinutes / 60) % 24
                 val minutes = alarm.startMinutes % 60
@@ -174,10 +173,10 @@ class SmartAlarmParsedEvent(
         startTime = parseStartDate(alarm)
     }
 
-    fun updateFilters(filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter>): SmartAlarmFilterMatch {
+    private fun updateFilters(filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter>): SmartAlarmFilterMatch {
         filterResults.clear()
         Log.d("TAG", "Filtering: ${event.eventData[SmartAlarmFilterType.Title]} ")
-        filters.values.forEach() {
+        filters.values.forEach {
             val res = it.filter(event)
             filterResults[it.filterType] = res
             Log.d(
@@ -187,10 +186,10 @@ class SmartAlarmParsedEvent(
 
         }
 
-        if (filterResults.containsValue(SmartAlarmFilterMatch.Fails)) {
-            matchesAll = SmartAlarmFilterMatch.Fails
+        matchesAll = if (filterResults.containsValue(SmartAlarmFilterMatch.Fails)) {
+            SmartAlarmFilterMatch.Fails
         } else {
-            matchesAll = SmartAlarmFilterMatch.Matches
+            SmartAlarmFilterMatch.Matches
         }
         Log.d("TAG", "Filtering result: ${matchesAll.name}")
 
