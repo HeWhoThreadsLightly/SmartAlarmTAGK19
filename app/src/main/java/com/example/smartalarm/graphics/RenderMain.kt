@@ -1,5 +1,6 @@
 package com.example.smartalarm.graphics
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -30,8 +31,9 @@ import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun renderMain(navController: NavHostController, model: SmartAlarmModel) {
+fun RenderMain(navController: NavHostController, model: SmartAlarmModel) {
 
     val data = remember { mutableStateOf(model.alarms) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->

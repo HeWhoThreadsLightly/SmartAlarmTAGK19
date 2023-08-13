@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartalarm.graphics.RenderAlarm
 import com.example.smartalarm.graphics.RenderAlarmFilters
-import com.example.smartalarm.graphics.renderMain
+import com.example.smartalarm.graphics.RenderMain
 import com.example.smartalarm.model.Constants
 import com.example.smartalarm.model.SmartAlarmModel
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
             startDestination = "view_all"
         ) {
             composable("view_all") {
-                renderMain(navController, model)
+                RenderMain(navController, model)
             }
 
             composable("view_one/{id}") {
