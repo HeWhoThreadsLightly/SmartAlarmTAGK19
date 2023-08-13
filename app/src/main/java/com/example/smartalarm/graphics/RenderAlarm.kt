@@ -1,10 +1,10 @@
 package com.example.smartalarm.graphics
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +12,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.RectangleShape
@@ -22,12 +23,15 @@ import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
+import androidx.compose.ui.Alignment.Vertical
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import com.example.smartalarm.model.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RenderStartWhen(alarm: SmartAlarmAlarm) {
+fun renderStartWhen(alarm: SmartAlarmAlarm) {
 
 
     val (selectedOption, onOptionSelected) = remember { mutableStateOf(SmartAlarmStartType.Before) }
@@ -67,7 +71,7 @@ fun RenderStartWhen(alarm: SmartAlarmAlarm) {
         onValueChange = {
             textStart = it
             alarm.startMinutes = it.text.toIntOrNull()
-                ?: 0 // TODO if selectedOption == SmartAlarmStartType.At interpret the value as a time of day like 13:45 in to minutes from midnight
+                ?: 0 // TODO if selectedOption == SmartAlarmStartType.At interprit the value as a time of day like 13:45 in to minutes from midnight
         })
     when (selectedOption) {
         SmartAlarmStartType.Before -> Text("Minutes before the event")
@@ -76,10 +80,9 @@ fun RenderStartWhen(alarm: SmartAlarmAlarm) {
     }
 }
 
-@SuppressLint("MutableCollectionMutableState")
 @Composable
-fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: Int) {
-    val alarm = model.alarms.find { it.id == id }
+fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: Int) {
+    var alarm = model.alarms.find { it.id == id }
     if (alarm == null) {
         Text("Id $id not found", modifier = Modifier.background(MaterialTheme.colorScheme.error))
         return
@@ -141,7 +144,7 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                         textName = it
                         alarm.name = it.text
                     })
-                    RenderStartWhen(alarm)
+                    renderStartWhen(alarm)
                     Text(text = "Filters")
                     alarm.filters.values.forEach {
                         RenderFilter(filter = it)
@@ -151,7 +154,7 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .fillMaxWidth()
                             .padding(8.dp),
                         onClick = {
-                            // Handle button click, show a table of passing and failing filters on events from calendar
+                            // Handle button click, show a tabel of passing and failing filters on events from calander
                             navController.navigate("view_one_filters/${id}")
                         }
                     ) {
@@ -200,7 +203,7 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .fillMaxWidth()
                             .padding(8.dp),
                         onClick = {
-                            alarm.runAlarmSequence(0)
+                            alarm.runAlarmSequence(0);
                         }
                     ) {
                         Text("Test Action Sequence")
@@ -228,7 +231,7 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
 }
 
 @Composable
-fun RenderAlarmItem(navController: NavHostController, item: SmartAlarmAlarm) {
+fun renderAlarmItem(navController: NavHostController, item: SmartAlarmAlarm) {
     Row(
         modifier = Modifier
             .background(
