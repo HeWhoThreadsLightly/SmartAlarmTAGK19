@@ -81,7 +81,7 @@ fun renderStartWhen(alarm: SmartAlarmAlarm) {
 }
 
 @Composable
-fun renderAlarm(navController: NavHostController, model: SmartAlarmModel, id: Int) {
+fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: Int) {
     var alarm = model.alarms.find { it.id == id }
     if (alarm == null) {
         Text("Id $id not found", modifier = Modifier.background(MaterialTheme.colorScheme.error))
