@@ -246,7 +246,7 @@ class SmartAlarmModel(
     }
     var calendar: SmartAlarmCalendar = SmartAlarmCalendar(context)
     var alarms: MutableList<SmartAlarmAlarm> =
-        mutableListOf<SmartAlarmAlarm>(
+        mutableListOf(
             //SmartAlarmAlarm(this, globalNextID++, "Example"),
             //SmartAlarmAlarm(this, globalNextID++, "Example2")
         )
@@ -323,7 +323,7 @@ class SmartAlarmModel(
 
     fun remove(alarm: SmartAlarmAlarm) {
 
-        alarm.alarmEvents.forEach() { (id, alarmItem) ->
+        alarm.alarmEvents.forEach { (id, alarmItem) ->
             scheduler.cancel(alarmItem)
         }
         alarm.alarmEvents.clear()
