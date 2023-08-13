@@ -3,7 +3,6 @@ package com.example.smartalarm.model
 import android.database.Cursor
 import android.icu.text.SimpleDateFormat
 import android.util.Log
-import com.example.smartalarm.SmartAlarmCalendarFilterMap
 import java.util.*
 
 class SmartAlarmCalendarEvent(

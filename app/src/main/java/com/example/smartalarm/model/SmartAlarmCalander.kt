@@ -1,14 +1,13 @@
-package com.example.smartalarm
+package com.example.smartalarm.model
 
 import android.content.ContentResolver
 import android.content.Context
 import android.database.Cursor
 import android.provider.CalendarContract
 import android.util.Log
-import com.example.smartalarm.model.*
 
 
-var SmartAlarmCalendarFilterMap = mapOf<SmartAlarmFilterType, String>(
+var SmartAlarmCalendarFilterMap = mapOf(
     /*
         The Calendars#_ID of the calendar the event belongs to. Column name.
         Type: INTEGER
@@ -43,7 +42,7 @@ var SmartAlarmCalendarFilterMap = mapOf<SmartAlarmFilterType, String>(
         The color as an 8-bit ARGB integer value.
         Colors should specify alpha as fully opaque (eg 0xFF993322)
         as the alpha may be ignored or modified for display.
-        It is reccomended that colors be usable with light (near white) text.
+        It is recommended that colors be usable with light (near white) text.
         Apps should not depend on that assumption, however. Column name.
 
         A secondary color for the individual event. This should only be updated by the sync adapter for a given account.
@@ -114,7 +113,7 @@ class SmartAlarmCalendar(private val context: Context) {
     var events: List<SmartAlarmCalendarEvent> = listOf()
 
     private fun fetchCalendarNames(): Map<Long, String> {
-        var calendarsNames = mutableMapOf<Long, String>()
+        val calendarsNames = mutableMapOf<Long, String>()
 
         // Get a ContentResolver object to query the calendar.
         val cr: ContentResolver = context.contentResolver
@@ -146,7 +145,7 @@ class SmartAlarmCalendar(private val context: Context) {
                 while (cu.moveToNext()) {
                     Log.d("TAG", "Fetched calendar $cu")
                     // Try to create a new calendar event object and set its properties.
-                    calendarsNames.put(cu.getLong(indexID), cu.getString(indexName))
+                    calendarsNames[cu.getLong(indexID)] = cu.getString(indexName)
                 }
             }
         }
@@ -155,8 +154,8 @@ class SmartAlarmCalendar(private val context: Context) {
 
     // This method refreshes the calendar events by querying the device's calendar.
     private fun fetchFeed(): List<SmartAlarmCalendarEvent> {
-        var latestEvents = mutableListOf<SmartAlarmCalendarEvent>()
-        var calendarsNames = fetchCalendarNames()
+        val latestEvents = mutableListOf<SmartAlarmCalendarEvent>()
+        val calendarsNames = fetchCalendarNames()
 
         // Get a ContentResolver object to query the calendar.
         val cr: ContentResolver = context.contentResolver
