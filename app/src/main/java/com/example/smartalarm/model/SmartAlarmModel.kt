@@ -24,26 +24,26 @@ enum class SmartAlarmStartType {
 var globalNextID: Int = 0
 var configAddNotMatchingToFilterList: Boolean = true
 fun SmartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
-    var alarm = SmartAlarmAlarm(model, json.getInt("id"), json.getString("name"))
+    val alarm = SmartAlarmAlarm(model, json.getInt("id"), json.getString("name"))
 
     alarm.startType = SmartAlarmStartType.valueOf(json.getString("startType"))
     alarm.startMinutes = json.getInt("startMinutes")
 
 
-    var filtersJ = json.getJSONArray("filters")
+    val filtersJ = json.getJSONArray("filters")
     for (i in 0 until filtersJ.length()) {
-        var filter = SmartAlarmFilter(alarm, filtersJ.getJSONObject(i))
+        val filter = SmartAlarmFilter(alarm, filtersJ.getJSONObject(i))
         alarm.filters[filter.filterType] = filter
     }
 
-    var actionsJ = json.getJSONArray("actions")
+    val actionsJ = json.getJSONArray("actions")
     for (i in 0 until actionsJ.length()) {
         alarm.actions.add(SmartAlarmAction(alarm, actionsJ.getJSONObject(i)))
     }
 
-    var alarmsJ = json.getJSONArray("alarms")
+    val alarmsJ = json.getJSONArray("alarms")
     for (i in 0 until alarmsJ.length()) {
-        var alarmItem = getAlarmItemFromJsonObject(alarmsJ.getJSONObject(i))
+        val alarmItem = getAlarmItemFromJsonObject(alarmsJ.getJSONObject(i))
         alarm.alarmEvents[alarmItem.eventID] = alarmItem
     }
 
@@ -87,10 +87,10 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
         alarmEvents.clear()
         parsedEvents.forEach() {
             if (it.matchesAll == SmartAlarmFilterMatch.Matches) {
-                var instant = it.startTime.toInstant().toEpochMilli()
+                val instant = it.startTime.toInstant().toEpochMilli()
                 if (instant >= System.currentTimeMillis()) {
 
-                    var alarmItem = AlarmItem(
+                    val alarmItem = AlarmItem(
                         instant,
                         "Alarm sequence scheduled start from $name",
                         id,
@@ -106,11 +106,11 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     fun runAlarmSequence(step: Int) {
 
         for (i in step until actions.count()) {
-            var action = actions[i]
+            val action = actions[i]
             if (action is ActionDelay) {
                 if (i != actions.count() - 1) {//if not last action
-                    var instant = System.currentTimeMillis() + action.delaySeconds * 1000;
-                    var alarmItem = AlarmItem(
+                    val instant = System.currentTimeMillis() + action.delaySeconds * 1000;
+                    val alarmItem = AlarmItem(
                         instant,
                         "Alarm sequence ${action.delaySeconds} second delay",
                         id,
@@ -129,10 +129,10 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     }
 
     private fun updateMatchingEvents() {
-        var parsed = mutableListOf<SmartAlarmParsedEvent>()
+        val parsed = mutableListOf<SmartAlarmParsedEvent>()
         model.calendar.events.forEach {
             if (it.startTime.toInstant().toEpochMilli() >= System.currentTimeMillis()) {
-                var event = SmartAlarmParsedEvent(this, it, filters)
+                val event = SmartAlarmParsedEvent(this, it, filters)
 
                 if (event.matchesAll == SmartAlarmFilterMatch.Matches || configAddNotMatchingToFilterList) {
                     parsed.add(event)
@@ -168,13 +168,13 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
     }
 
     fun serialize(): JSONObject {
-        var json = JSONObject()
+        val json = JSONObject()
         json.put("name", name)
         json.put("id", id)
         json.put("startType", startType.name)
         json.put("startMinutes", startMinutes)
 
-        var filtersJ = JSONArray()
+        val filtersJ = JSONArray()
         filters.forEach() {
             val obj = it.value.serialize()
             //Log.d("TAG", "saving ${obj.toString(4)}")
@@ -182,7 +182,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
         }
         json.put("filters", filtersJ)
 
-        var actionsJ = JSONArray()
+        val actionsJ = JSONArray()
         actions.forEach() {
             val obj = it.serialize()
             //Log.d("TAG", "saving ${obj.toString(4)}")
@@ -190,7 +190,7 @@ class SmartAlarmAlarm(model: SmartAlarmModel, id: Int, name: String) {
         }
         json.put("actions", actionsJ)
 
-        var alarmsJ = JSONArray()
+        val alarmsJ = JSONArray()
         alarmEvents.forEach() {
             val obj = it.value.serialize()
             //Log.d("TAG", "saving ${obj.toString(4)}")
@@ -208,10 +208,10 @@ fun SmartAlarmModel(
     JSONstr: String
 ): SmartAlarmModel {
 
-    var json = JSONObject(JSONstr)
+    val json = JSONObject(JSONstr)
     globalNextID = json.getInt("globalNextID")
-    var model = SmartAlarmModel(context, alarmManager)
-    var alarmsJ = json.getJSONArray("alarms")
+    val model = SmartAlarmModel(context, alarmManager)
+    val alarmsJ = json.getJSONArray("alarms")
 
     //Log.d("TAG", "parsed alarms as ${alarmsJ.toString(4)}")
     for (i in 0 until alarmsJ.length()) {
@@ -312,10 +312,10 @@ class SmartAlarmModel(
     }
 
     fun serialize(): String {
-        var json: JSONObject = JSONObject()
+        val json: JSONObject = JSONObject()
         json.put("globalNextID", globalNextID)
 
-        var alarmsJ = JSONArray()
+        val alarmsJ = JSONArray()
         alarms.forEach() {
             val obj = it.serialize()
             //Log.d("TAG", "saving ${obj.toString(4)}")
