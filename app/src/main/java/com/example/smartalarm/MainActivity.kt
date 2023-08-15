@@ -19,32 +19,31 @@ import com.example.smartalarm.model.SmartAlarmModel
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
 
 
-fun InitModel(context: MainActivity, alarmManager: AlarmManager): SmartAlarmModel {
+fun initModel(context: MainActivity, alarmManager: AlarmManager): SmartAlarmModel {
     Log.d("TAG", "Started load sequence")
     try { // try to load saved settings
 
         Log.d("TAG", "Loading settings")
-        var prefs: SharedPreferences? =
+        val prefs: SharedPreferences? =
             context.getSharedPreferences(Constants.SHARED_PREF_KEY, ComponentActivity.MODE_PRIVATE)
-        var jsonStr = prefs?.getString("json", null)
+        val jsonStr = prefs?.getString("json", null)
 
-        if (jsonStr != null) {
+        return if (jsonStr != null) {
 
             //Log.d("TAG", "Loaded $jsonStr")
             val model = SmartAlarmModel(context, alarmManager, jsonStr)
 
             Log.d("TAG", "Parsed settings")
 
-            return model
+            model
         } else {
             Log.d("TAG", "Failed to load settings")
-            return SmartAlarmModel(context, alarmManager)
+            SmartAlarmModel(context, alarmManager)
         }
     } catch (err: Exception) {
 
         Log.d("TAG", "Error loading settings")
         throw err
-        return SmartAlarmModel(context, alarmManager)
     }
 }
 
@@ -59,16 +58,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         alarmManager =
-            getSystemService(android.content.Context.ALARM_SERVICE) as AlarmManager//TODO caches here
-        model = InitModel(this, alarmManager)
+            getSystemService(ALARM_SERVICE) as AlarmManager//TODO caches here
+        model = initModel(this, alarmManager)
         setContent {
             model.navController = rememberNavController()
             handleInitialIntent()
-            registerReceiver(broadcastReceiver,  IntentFilter("broadCastName"));
+            registerReceiver(broadcastReceiver,  IntentFilter("broadCastName"))
             // Register the permissions callback, which handles the user's response to the
             // system permissions dialog. Save the return value, an instance of
             // ActivityResultLauncher. You can use either a val, as shown in this snippet,
-            // or a lateinit var in your onAttach() or onCreate() method.
+            // or a late init var in your onAttach() or onCreate() method.
 
 
             SmartAlarmTheme {
@@ -81,7 +80,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun AppScreen(model: SmartAlarmModel) {
-        var navController: NavHostController = rememberNavController()
+        val navController: NavHostController = rememberNavController()
         model.navController = navController
         NavHost(
             navController = navController,
@@ -102,17 +101,17 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+    private var broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
 
-            val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
-            val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
-            val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
+            val message = intent.getStringExtra("EXTRA_MESSAGE") ?: return
+            val alarmID = intent.getIntExtra("EXTRA_ALARM_ID", 0)
+            val eventID = intent.getIntExtra("EXTRA_EVENT_ID", 0)
             Log.d("TAG", "Intent2 received: $message $alarmID $eventID")
             model.handleReceivedMessage(message, alarmID, eventID)
         }
     }
-    fun handleInitialIntent() {
+    private fun handleInitialIntent() {
         val message = intent?.getStringExtra("EXTRA_MESSAGE") ?: return
         val alarmID = intent?.getIntExtra("EXTRA_ALARM_ID", 0) ?: return
         val eventID = intent?.getIntExtra("EXTRA_EVENT_ID", 0) ?: return
@@ -122,15 +121,15 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        val JSONstr: String = model.serialize()
+        val jsonStr: String = model.serialize()
 
-        //Log.d("TAG", "Saving : $JSONstr")
+        //Log.d("TAG", "Saving : $jsonStr")
         val prefs: SharedPreferences =
-            getSharedPreferences(Constants.SHARED_PREF_KEY, ComponentActivity.MODE_PRIVATE)
+            getSharedPreferences(Constants.SHARED_PREF_KEY, MODE_PRIVATE)
 
         val editPrefs: SharedPreferences.Editor = prefs.edit()
-        editPrefs.putString("json", JSONstr)
-        editPrefs.commit()
+        editPrefs.putString("json", jsonStr)
+        editPrefs.apply()
         Log.d("TAG", "Saved settings")
 
 

@@ -226,7 +226,6 @@ class SmartAlarmModel(
 ) {
     var scheduler: SmartAlarmAndroidAlarmScheduler =
         SmartAlarmAndroidAlarmScheduler(context, alarmManager)
-    var receiver: AlarmReceiver = AlarmReceiver()
     private lateinit var refreshAction : AlarmItem
     lateinit var navController: NavHostController
     private var requestPermissionLauncher = context.registerForActivityResult(
