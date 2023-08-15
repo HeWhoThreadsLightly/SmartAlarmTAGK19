@@ -10,7 +10,6 @@ class SmartAlarmCalendarEvent(
     // = ICSdateFormat.parse("20230222T120000Z")
     var startTime: Date,
     // = ICSdateFormat.parse("20230222T120000Z")
-    var endTime: Date,
     var eventData: EnumMap<SmartAlarmFilterType, String>
 ) {
 
@@ -66,7 +65,7 @@ fun smartAlarmCalendarEvent(
                         "All day"
                     }
                     else -> {
-                        Log.d("TAG", "ALL_DAY boolean has non binary value $allDay")
+                        Log.d("TAG", "ALLDAY boolean has non binary value $allDay")
                         null
                     }
                 }
@@ -133,7 +132,7 @@ fun smartAlarmCalendarEvent(
 
         eventData[SmartAlarmFilterType.Duration] = str
     }
-    return SmartAlarmCalendarEvent(startTime!!, endTime!!, eventData)
+    return SmartAlarmCalendarEvent(startTime!!, eventData)
 }
 
 class SmartAlarmParsedEvent(

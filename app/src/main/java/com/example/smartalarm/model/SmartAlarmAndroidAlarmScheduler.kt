@@ -11,10 +11,8 @@ class SmartAlarmAndroidAlarmScheduler(
     private val alarmManager: AlarmManager
 )  {
 
-    //private val alarmManager = context.getSystemService(AlarmManager::class.java)//TODO caches here
 
     fun schedule(item: AlarmItem) {
-        //val c = android.content.Context.ALARM_SERVICE
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             putExtra("EXTRA_MESSAGE", item.message)
             putExtra("EXTRA_ALARM_ID", item.alarmID)

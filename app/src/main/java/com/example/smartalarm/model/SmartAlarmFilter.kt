@@ -75,7 +75,6 @@ class SmartAlarmFilter(val alarm: SmartAlarmAlarm, type: SmartAlarmFilterType) {
         json.put("filterType", filterType.name)
         json.put("active", active)
         json.put("filter", filter)
-        //Log.d("TAG, ","Saving SmartAlarmFilter ${json.toString(4)}")
         return json
     }
 }
