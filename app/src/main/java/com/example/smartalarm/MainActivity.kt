@@ -62,7 +62,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             model.navController = rememberNavController()
             handleInitialIntent()
-            registerReceiver(broadcastReceiver,  IntentFilter("broadCastName"))
+            val action = "com.example.smartalarm.ACTION_ALARM_TRIGGERED"
+            registerReceiver(broadcastReceiver,  IntentFilter(action))
             // Register the permissions callback, which handles the user's response to the
             // system permissions dialog. Save the return value, an instance of
             // ActivityResultLauncher. You can use either a val, as shown in this snippet,

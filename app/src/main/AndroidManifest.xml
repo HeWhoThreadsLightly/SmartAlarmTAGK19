@@ -34,7 +34,7 @@
         </activity>
         <receiver android:name=".model.AlarmReceiver" android:exported="false">
             <intent-filter>
-                <action android:name="broadCastName" />
+                <action android:name="ACTION_ALARM_TRIGGERED" />
             </intent-filter>
         </receiver>
     </application>
