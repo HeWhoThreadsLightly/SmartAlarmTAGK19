@@ -67,7 +67,7 @@ fun RenderStartWhen(alarm: SmartAlarmAlarm) {
         onValueChange = {
             textStart = it
             alarm.startMinutes = it.text.toIntOrNull()
-                ?: 0 // TODO if selectedOption == SmartAlarmStartType.At interpret the value as a time of day like 13:45 in to minutes from midnight
+                ?: 0
         })
     when (selectedOption) {
         SmartAlarmStartType.Before -> Text("Minutes before the event")
@@ -118,7 +118,6 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
             item("Header") {
                 Column(
                     modifier = Modifier
-                        //.verticalScroll(rememberScrollState())
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surface, RectangleShape)
                 ) {
@@ -215,7 +214,6 @@ fun RenderAlarm(navController: NavHostController, model: SmartAlarmModel, id: In
                             .shadow(elevation.value)
                             .background(MaterialTheme.colorScheme.surfaceTint)
                     ) {
-                        //Text("Elevation = ${elevation.value}")
                         item.RenderAction()
                     }
                 }

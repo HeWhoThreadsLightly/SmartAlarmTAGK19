@@ -60,7 +60,6 @@ fun RenderMain(navController: NavHostController, model: SmartAlarmModel) {
             item(key = "Header") {
                 Column(
                     modifier = Modifier
-                        //.verticalScroll(rememberScrollState())
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.surfaceVariant, RectangleShape)
 

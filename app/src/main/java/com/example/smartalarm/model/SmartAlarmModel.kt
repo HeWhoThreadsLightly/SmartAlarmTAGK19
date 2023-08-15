@@ -65,12 +65,7 @@ class SmartAlarmAlarm(val model: SmartAlarmModel, val id: Int, var name: String)
         }
     var filters: EnumMap<SmartAlarmFilterType, SmartAlarmFilter> =
         EnumMap(SmartAlarmFilterType.values().associateWith { SmartAlarmFilter(this, it) })
-    var actions: MutableList<SmartAlarmAction> = mutableListOf(
-        //SetVolume(model, 10),
-        //ActionDelay(model, 10),
-        //ActionPlayYoutube(model, "ZqJfqIwpXZ8"),
-        //ActionDelay(model, 10)
-    )
+    var actions: MutableList<SmartAlarmAction> = mutableListOf()
 
     fun activeFilters(): List<SmartAlarmFilter> {
         return filters.values.filter { it.active }
@@ -173,7 +168,6 @@ class SmartAlarmAlarm(val model: SmartAlarmModel, val id: Int, var name: String)
         val filtersJ = JSONArray()
         filters.forEach {
             val obj = it.value.serialize()
-            //Log.d("TAG", "saving ${obj.toString(4)}")
             filtersJ.put(obj)
         }
         json.put("filters", filtersJ)
@@ -181,7 +175,6 @@ class SmartAlarmAlarm(val model: SmartAlarmModel, val id: Int, var name: String)
         val actionsJ = JSONArray()
         actions.forEach {
             val obj = it.serialize()
-            //Log.d("TAG", "saving ${obj.toString(4)}")
             actionsJ.put(obj)
         }
         json.put("actions", actionsJ)
@@ -189,7 +182,6 @@ class SmartAlarmAlarm(val model: SmartAlarmModel, val id: Int, var name: String)
         val alarmsJ = JSONArray()
         alarmEvents.forEach {
             val obj = it.value.serialize()
-            //Log.d("TAG", "saving ${obj.toString(4)}")
             alarmsJ.put(obj)
         }
         json.put("alarms", alarmsJ)
@@ -212,9 +204,6 @@ fun SmartAlarmModel(
     //Log.d("TAG", "parsed alarms as ${alarmsJ.toString(4)}")
     for (i in 0 until alarmsJ.length()) {
 
-        //Log.d("TAG", "Alarm index $i")
-
-        //Log.d("TAG", "Alarm $i is ${alarmsJ.getJSONObject(i)}")
         model.alarms.add(SmartAlarmAlarm(model, alarmsJ.getJSONObject(i)))
     }
     return model
@@ -245,10 +234,7 @@ class SmartAlarmModel(
     }
     var calendar: SmartAlarmCalendar = SmartAlarmCalendar(context)
     var alarms: MutableList<SmartAlarmAlarm> =
-        mutableListOf(
-            //SmartAlarmAlarm(this, globalNextID++, "Example"),
-            //SmartAlarmAlarm(this, globalNextID++, "Example2")
-        )
+        mutableListOf()
 
     private fun updateInternal() {
         calendar.update()
@@ -312,7 +298,6 @@ class SmartAlarmModel(
         val alarmsJ = JSONArray()
         alarms.forEach {
             it.serialize()
-            //Log.d("TAG", "saving ${obj.toString(4)}")
             alarmsJ.put(it.serialize())
         }
         json.put("alarms", alarmsJ)

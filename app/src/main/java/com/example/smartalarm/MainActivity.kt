@@ -53,7 +53,6 @@ class MainActivity : ComponentActivity() {
 
     lateinit var model: SmartAlarmModel
 
-    //@RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -121,14 +120,13 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        val jsonStr: String = model.serialize()
+        val JSONstr: String = model.serialize()
 
-        //Log.d("TAG", "Saving : $jsonStr")
         val prefs: SharedPreferences =
             getSharedPreferences(Constants.SHARED_PREF_KEY, MODE_PRIVATE)
 
         val editPrefs: SharedPreferences.Editor = prefs.edit()
-        editPrefs.putString("json", jsonStr)
+        editPrefs.putString("json", JSONstr)
         editPrefs.apply()
         Log.d("TAG", "Saved settings")
 

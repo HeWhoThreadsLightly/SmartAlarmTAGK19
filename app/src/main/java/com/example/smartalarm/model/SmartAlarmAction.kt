@@ -156,7 +156,7 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
     }
 
     override fun stop() {
-        // Implementation of stop method
+        // implementation of stop method
     }
 
     @Composable
@@ -172,7 +172,6 @@ class ActionPlayYoutube(alarm: SmartAlarmAlarm, id: String) :
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = simpleName,
@@ -348,7 +347,6 @@ class SetVolume(alarm: SmartAlarmAlarm, private var volume: Int) :
         ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                //verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = simpleName,
