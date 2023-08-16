@@ -1,4 +1,4 @@
-package com.example.smartalarm.model
+package com.example.smartalarm.graphics
 
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -24,7 +24,7 @@ import org.json.JSONObject
 import kotlin.math.roundToInt
 import android.media.Ringtone
 import android.media.RingtoneManager
-
+import com.example.smartalarm.model.SmartAlarmAlarm
 
 
 fun SmartAlarmAction(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmAction {
