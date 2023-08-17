@@ -78,7 +78,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
     val activeFilters = alarm.activeFilters()
 
     @Composable
-    fun decidedBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
+    fun DecidedBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.surfaceVariant
         }
@@ -94,7 +94,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
     }
 
     @Composable
-    fun decidedTextColor(columnIndex: Int, rowIndex: Int): Color {
+    fun DecidedTextColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.onSurface
         }
@@ -148,7 +148,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
                             Row(
                                 modifier = Modifier
                                     .background(
-                                        decidedBackgroundColor(columnIndex, rowIndex),
+                                        DecidedBackgroundColor(columnIndex, rowIndex),
                                         RoundedCornerShape(4.dp)
                                     )
                                     .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
@@ -156,7 +156,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
                             ) {
                                 Text(
                                     text = decidedText(columnIndex, rowIndex),
-                                    color = decidedTextColor(columnIndex, rowIndex)
+                                    color = DecidedTextColor(columnIndex, rowIndex)
                                 )
                             }
 
