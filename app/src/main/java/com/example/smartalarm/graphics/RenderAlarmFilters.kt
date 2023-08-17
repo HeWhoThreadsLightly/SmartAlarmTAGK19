@@ -78,7 +78,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
     val activeFilters = alarm.activeFilters()
 
     @Composable
-    fun DecidedBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
+    fun DecideBackgroundColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.surfaceVariant
         }
@@ -94,7 +94,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
     }
 
     @Composable
-    fun DecidedTextColor(columnIndex: Int, rowIndex: Int): Color {
+    fun DecideTextColor(columnIndex: Int, rowIndex: Int): Color {
         if (rowIndex == 0 || rowIndex == 1) {
             return MaterialTheme.colorScheme.onSurface
         }
@@ -109,7 +109,7 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
         }
     }
 
-    fun decidedText(columnIndex: Int, rowIndex: Int): String {
+    fun decideText(columnIndex: Int, rowIndex: Int): String {
 
         val filter = activeFilters[columnIndex]
 
@@ -148,15 +148,15 @@ fun RenderAlarmFilters(model: SmartAlarmModel, id: Int) {
                             Row(
                                 modifier = Modifier
                                     .background(
-                                        DecidedBackgroundColor(columnIndex, rowIndex),
+                                        DecideBackgroundColor(columnIndex, rowIndex),
                                         RoundedCornerShape(4.dp)
                                     )
                                     .border(8.dp, MaterialTheme.colorScheme.surface, RectangleShape)
                                     .padding(8.dp)
                             ) {
                                 Text(
-                                    text = decidedText(columnIndex, rowIndex),
-                                    color = DecidedTextColor(columnIndex, rowIndex)
+                                    text = decideText(columnIndex, rowIndex),
+                                    color = DecideTextColor(columnIndex, rowIndex)
                                 )
                             }
 
