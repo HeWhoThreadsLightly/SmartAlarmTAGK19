@@ -12,6 +12,7 @@ import androidx.navigation.NavHostController
 import com.example.smartalarm.MainActivity
 import com.example.smartalarm.graphics.ActionDelay
 import com.example.smartalarm.graphics.SmartAlarmAction
+import com.example.smartalarm.graphics.smartAlarmAction
 import org.json.JSONArray
 import org.json.JSONObject
 import java.util.*
@@ -39,7 +40,7 @@ fun SmartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
 
     val actionsJ = json.getJSONArray("actions")
     for (i in 0 until actionsJ.length()) {
-        alarm.actions.add(SmartAlarmAction(alarm, actionsJ.getJSONObject(i)))
+        alarm.actions.add(smartAlarmAction(alarm, actionsJ.getJSONObject(i)))
     }
 
     val alarmsJ = json.getJSONArray("alarms")

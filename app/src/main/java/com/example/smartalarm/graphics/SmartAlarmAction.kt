@@ -27,7 +27,7 @@ import android.media.RingtoneManager
 import com.example.smartalarm.model.SmartAlarmAlarm
 
 
-fun SmartAlarmAction(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmAction {
+fun smartAlarmAction(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmAction {
     when (json.getString("type")) {
         "SmartAlarmAction" -> {
             return SmartAlarmAction(alarm, "Serialization error base class")
