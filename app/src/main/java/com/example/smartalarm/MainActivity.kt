@@ -16,6 +16,7 @@ import com.example.smartalarm.graphics.RenderAlarmFilters
 import com.example.smartalarm.graphics.RenderMain
 import com.example.smartalarm.model.Constants
 import com.example.smartalarm.model.SmartAlarmModel
+import com.example.smartalarm.model.smartAlarmModel
 import com.example.smartalarm.ui.theme.SmartAlarmTheme
 
 
@@ -31,7 +32,7 @@ fun initModel(context: MainActivity, alarmManager: AlarmManager): SmartAlarmMode
         return if (jsonStr != null) {
 
             //Log.d("TAG", "Loaded $jsonStr")
-            val model = SmartAlarmModel(context, alarmManager, jsonStr)
+            val model = smartAlarmModel(context, alarmManager, jsonStr)
 
             Log.d("TAG", "Parsed settings")
 

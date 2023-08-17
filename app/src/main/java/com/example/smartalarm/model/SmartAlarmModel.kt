@@ -25,7 +25,7 @@ enum class SmartAlarmStartType {
 
 var globalNextID: Int = 0
 var configAddNotMatchingToFilterList: Boolean = true
-fun SmartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
+fun smartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
     val alarm = SmartAlarmAlarm(model, json.getInt("id"), json.getString("name"))
 
     alarm.startType = SmartAlarmStartType.valueOf(json.getString("startType"))
@@ -34,7 +34,7 @@ fun SmartAlarmAlarm(model: SmartAlarmModel, json: JSONObject): SmartAlarmAlarm {
 
     val filtersJ = json.getJSONArray("filters")
     for (i in 0 until filtersJ.length()) {
-        val filter = SmartAlarmFilter(alarm, filtersJ.getJSONObject(i))
+        val filter = smartAlarmFilter(alarm, filtersJ.getJSONObject(i))
         alarm.filters[filter.filterType] = filter
     }
 
@@ -193,7 +193,7 @@ class SmartAlarmAlarm(val model: SmartAlarmModel, val id: Int, var name: String)
     }
 }
 
-fun SmartAlarmModel(
+fun smartAlarmModel(
     context: MainActivity,
     alarmManager: AlarmManager,
     JSONstr: String
@@ -207,7 +207,7 @@ fun SmartAlarmModel(
     //Log.d("TAG", "parsed alarms as ${alarmsJ.toString(4)}")
     for (i in 0 until alarmsJ.length()) {
 
-        model.alarms.add(SmartAlarmAlarm(model, alarmsJ.getJSONObject(i)))
+        model.alarms.add(smartAlarmAlarm(model, alarmsJ.getJSONObject(i)))
     }
     return model
 }

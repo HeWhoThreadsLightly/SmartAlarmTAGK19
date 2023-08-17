@@ -28,7 +28,7 @@ enum class SmartAlarmFilterMatch {
     Fails
 }
 
-fun SmartAlarmFilter(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmFilter {
+fun smartAlarmFilter(alarm: SmartAlarmAlarm, json: JSONObject): SmartAlarmFilter {
     val filter = SmartAlarmFilter(alarm, SmartAlarmFilterType.valueOf(json.getString("filterType")))
     filter.active = json.getBoolean("active")
     filter.filter = json.getString("filter")
